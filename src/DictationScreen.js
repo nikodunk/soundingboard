@@ -15,11 +15,6 @@ import Voice from 'react-native-voice';
 
 
 
-
-
-
-
-
 type Props = {};
 export default class App extends Component<Props> {
     constructor(props) {
@@ -46,6 +41,13 @@ export default class App extends Component<Props> {
 
   componentDidMount() {
     console.log('yay!')
+    let textinput = []
+    textinput[0] = 'History of present illness:\n\n medical history\n\n surgical history\n\n family history\n\n social history\n'
+    textinput[1] = 'Review of Systems\n\nFindings from Exam \n\nLab Results'
+    textinput[2] = 'Summary:\n'
+    textinput[3] = 'Summary:\n'
+    this.setState({textinput: textinput})
+
   }
 
   componentWillUnmount() {
@@ -114,8 +116,11 @@ export default class App extends Component<Props> {
   async _stopRecognizing(e) {
     try {
       await Voice.stop();
-      var textinput = [] 
-      textinput[0] = this.state.results[0]  
+      let textinput = [] 
+      textinput[0] = this.state.textinput[0] + this.state.results[0]
+      textinput[1] = this.state.textinput[1]
+      textinput[2] = this.state.textinput[2]
+      textinput[3] = this.state.textinput[3]
       this.setState({
         textinput: textinput
       })
@@ -168,7 +173,7 @@ export default class App extends Component<Props> {
         <View style={{marginTop: 30, marginLeft: 10}}>
           <View style={{flexDirection: 'row'}}>
             <Image style={{height: 30, width: 30, marginTop: 6}} source={require('../assets/hamburger.png')} />
-            <Text style={styles.welcome}>ehrMobile</Text>
+            <Text style={styles.welcome}>Libo's-most-hated-EMR-section APP</Text>
           </View>
           <Text style={styles.instructions}>
               Press the button and start speaking.
@@ -177,7 +182,7 @@ export default class App extends Component<Props> {
         <View style={styles.container}>
           
 
-          <Text> subjective(story) </Text>
+          <Text> subjective component (story) </Text>
           <TextInput
             style={styles.textInput}
             onChangeText={(text) => this.setState({text})}
@@ -185,7 +190,7 @@ export default class App extends Component<Props> {
             multiline={true}
           />
 
-          <Text> objective(exam) </Text>
+          <Text> objective component </Text>
           <TextInput
             style={styles.textInput}
             onChangeText={(text) => this.setState({text})}
@@ -193,7 +198,7 @@ export default class App extends Component<Props> {
             multiline={true}
           />
 
-          <Text> assessment(labs) </Text>
+          <Text> assessment (hypothesis) </Text>
           <TextInput
             style={styles.textInput}
             onChangeText={(text) => this.setState({text})}
