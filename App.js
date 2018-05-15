@@ -8,15 +8,17 @@ import {
   Image,
   TextInput
 } from 'react-native';
+import SwitchNavigator from './src/components/_Router'
 
-import DictationScreen from './src/DictationScreen';
+
+
 
 export default class App extends Component {
 
   render() {
     return (
       <View style={{flex: 1}}>
-        <DictationScreen />
+        <Router />
       </View>
     );
   }

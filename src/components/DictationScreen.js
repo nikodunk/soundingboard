@@ -11,7 +11,8 @@ import {
 
 // import Icon from 'react-native-vector-icons/FontAwesome';
 import Voice from 'react-native-voice';
-
+import styles from './_styles'
+import { YellowBox } from 'react-native';
 
 
 
@@ -26,6 +27,7 @@ export default class App extends Component<Props> {
       end: '',
       started: '',
       results: [],
+      activeField: 0,
       partialResults: [],
       textinput: [],
       recording: false
@@ -37,15 +39,15 @@ export default class App extends Component<Props> {
     Voice.onSpeechResults = this.onSpeechResults.bind(this);
     Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
     Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged.bind(this);
+    YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
   }
 
   componentDidMount() {
-    console.log('yay!')
     let textinput = []
-    textinput[0] = 'History of present illness:\n\n medical history\n\n surgical history\n\n family history\n\n social history\n'
-    textinput[1] = 'Review of Systems\n\nFindings from Exam \n\nLab Results'
-    textinput[2] = 'Summary:\n'
-    textinput[3] = 'Summary:\n'
+    textinput[0] = ''
+    textinput[1] = ''
+    textinput[2] = ''
+    textinput[3] = ''
     this.setState({textinput: textinput})
 
   }
@@ -117,10 +119,11 @@ export default class App extends Component<Props> {
     try {
       await Voice.stop();
       let textinput = [] 
-      textinput[0] = this.state.textinput[0] + this.state.results[0]
+      textinput[0] = this.state.textinput[0]
       textinput[1] = this.state.textinput[1]
       textinput[2] = this.state.textinput[2]
       textinput[3] = this.state.textinput[3]
+      textinput[this.state.activeField] = textinput[this.state.activeField] + ' ' + this.state.results[0]
       this.setState({
         textinput: textinput
       })
@@ -167,13 +170,17 @@ export default class App extends Component<Props> {
      }
   }
 
+  onFocus(arrayNumber){
+    this.setState({activeField: arrayNumber})
+    console.log(arrayNumber)
+  }
+
   render() {
     return (
       <View style={{flex: 1}}>
         <View style={{marginTop: 30, marginLeft: 10}}>
           <View style={{flexDirection: 'row'}}>
-            <Image style={{height: 30, width: 30, marginTop: 6}} source={require('../assets/hamburger.png')} />
-            <Text style={styles.welcome}>Libo's-most-hated-EMR-section APP</Text>
+            <Text style={styles.welcome}>Patient Nicholas Dunkel</Text>
           </View>
           <Text style={styles.instructions}>
               Press the button and start speaking.
@@ -182,34 +189,38 @@ export default class App extends Component<Props> {
         <View style={styles.container}>
           
 
-          <Text> subjective component (story) </Text>
+          <Text>HPI</Text>
           <TextInput
             style={styles.textInput}
             onChangeText={(text) => this.setState({text})}
+            onFocus={() => this.onFocus(0)}
             value={this.state.textinput[0]}
             multiline={true}
           />
 
-          <Text> objective component </Text>
+          <Text>Social History</Text>
           <TextInput
             style={styles.textInput}
             onChangeText={(text) => this.setState({text})}
+            onFocus={() => {this.onFocus(1)}}
             value={this.state.textinput[1]}
             multiline={true}
           />
 
-          <Text> assessment (hypothesis) </Text>
+          <Text>Review of Systems</Text>
           <TextInput
             style={styles.textInput}
             onChangeText={(text) => this.setState({text})}
+            onFocus={() => this.onFocus(2)}
             value={this.state.textinput[2]}
             multiline={true}
           />
 
-          <Text>plan</Text>
+          <Text>Assessment</Text>
           <TextInput
             style={styles.textInput}
             onChangeText={(text) => this.setState({text})}
+            onFocus={() => this.onFocus(3)}
             value={this.state.textinput[3]}
             multiline={true}
           />
@@ -223,11 +234,18 @@ export default class App extends Component<Props> {
             )
           })}
 
-          <View style={{position: 'absolute', bottom: 10, right: 10}}> 
+          <View style={[styles.buttonImageContainer, { bottom: 10, right: 10, }]}> 
             <TouchableOpacity
                  onPress={  () => {this.toggleRecognizing();} }
                  activeOpacity={.8}>
-                 <Image style={styles.buttonImage} ref={this.handleImageRef} source={require('../assets/button.png')} />
+                 <Image style={styles.buttonImage} ref={this.handleImageRef} source={require('../../assets/button.png')} />
+            </TouchableOpacity>
+          </View>
+          <View style={[styles.buttonImageContainer, { bottom: 10, left: 10, }]}> 
+            <TouchableOpacity
+                 onPress={() => this.props.navigation.openDrawer()}
+                 activeOpacity={.8}>
+                 <Image style={styles.buttonImage} ref={this.handleImageRef} source={require('../../assets/hamburger.png')} />
             </TouchableOpacity>
           </View>
         </View>
@@ -238,27 +256,4 @@ export default class App extends Component<Props> {
 
   
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  welcome: {
-    fontSize: 20,
-    margin: 10,
-  },
-  instructions: {
-    color: '#333333',
-    marginBottom: 20,
-    marginLeft: 40
-  },
-  textInput:{
-    height: 100, width: 300, borderColor: 'gray', borderWidth: 1, borderRadius: 5, padding: 5, margin: 5
-  },
-  buttonImage:{
-        width: 80,
-        height: 80,
-      },
 
-});
