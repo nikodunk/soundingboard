@@ -2,51 +2,12 @@ import { AsyncStorage } from 'react-native';
 import axios from 'axios';
 
 
-// post to https://healthserve.herokuapp.com/2/auth/9177043031
-export function sendPhoneNumber(phone){
-    return dispatch => new Promise((resolve, reject) => {
-    axios.post('https://healthserve.herokuapp.com/2/auth/'+ phone)
-            .then((response) => {
-                resolve(response.data)
-                })
-        })
-}
 
-
-
-// post to https://healthserve.herokuapp.com/2/login/9177043031/8523
-export function sendPIN(PIN, phoneNo) {
-    return dispatch => new Promise((resolve, reject) => {        
-        console.log('https://healthserve.herokuapp.com/2/login/'+ phoneNo +'/'+ PIN)
-        // AsyncStorage.setItem('jwt', 'token' ); resolve() // UNCOMMENT FOR OFFLINE MODE
-        axios.post('https://healthserve.herokuapp.com/2/login/'+  phoneNo +'/'+ PIN)
-            .then((response) => {
-                    if (response.data == false){ console.log('wrong'); resolve()}
-                    else { AsyncStorage.setItem('jwt', 'token' ); AsyncStorage.setItem('usergroup', response.data ); }
-                })
-            .then(() =>  resolve() )         
-    })
-}
-
-
-// post to https://healthserve.herokuapp.com/2/register/9177043031/8523/Nicholas Dunkel
-export function register(phoneNo, PIN, name, usergroup) {
-    return dispatch => new Promise((resolve, reject) => {        
-        console.log('https://healthserve.herokuapp.com/2/register/'+ phoneNo +'/'+ PIN +'/'+ name +'/'+ usergroup)
-        axios.post('https://healthserve.herokuapp.com/2/register/'+  phoneNo +'/'+ PIN +'/'+ name +'/'+ usergroup)
-            .then((response) => {
-                    if (response.data.command === 'UPDATE'){ AsyncStorage.setItem('jwt', 'token' ); AsyncStorage.setItem('usergroup', usergroup ); resolve() }
-                    else{ console.log('register didnt work with status:' + response.data); resolve()}
-                })         
-    })
-}
-
-
-// get to https://healthserve.herokuapp.com/2/getdates/9177043031/2019-05-01
-export function fetchData(month, usergroup) {
+// get to https://healthnotes.herokuapp.com/1/getnotes/9177043031/
+export function fetchData(phone) {
     return dispatch => new Promise((resolve, reject) => {
         console.log('fetchData ran', month, usergroup)
-        axios.get('https://healthserve.herokuapp.com/2/getdates/'+ usergroup +'/' + month)
+        axios.get('https://healthnotes.herokuapp.com/1/'+ phone )
             .then((items) => {
                     dispatch(fetchDataSuccess(items.data)); 
                     resolve()

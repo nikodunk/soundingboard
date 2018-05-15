@@ -6,7 +6,7 @@ import {
   View,
   TouchableOpacity,
   Image,
-  TextInput
+  TextInput, Keyboard
 } from 'react-native';
 
 // import Icon from 'react-native-vector-icons/FontAwesome';
@@ -14,10 +14,13 @@ import Voice from 'react-native-voice';
 import styles from './_styles'
 import { YellowBox } from 'react-native';
 
+import { connect } from 'react-redux';
+import { fetchData } from '../actions/actions';
 
 
 type Props = {};
-export default class App extends Component<Props> {
+
+class App extends Component<Props> {
     constructor(props) {
     super(props);
     this.state = {
@@ -171,6 +174,7 @@ export default class App extends Component<Props> {
   }
 
   onFocus(arrayNumber){
+    Keyboard.dismiss()
     this.setState({activeField: arrayNumber})
     console.log(arrayNumber)
   }
@@ -191,7 +195,7 @@ export default class App extends Component<Props> {
 
           <Text>HPI</Text>
           <TextInput
-            style={styles.textInput}
+            style={this.state.activeField === 0 ? styles.textInputSelected : styles.textInput}
             onChangeText={(text) => this.setState({text})}
             onFocus={() => this.onFocus(0)}
             value={this.state.textinput[0]}
@@ -200,7 +204,7 @@ export default class App extends Component<Props> {
 
           <Text>Social History</Text>
           <TextInput
-            style={styles.textInput}
+            style={this.state.activeField === 1 ? styles.textInputSelected : styles.textInput}
             onChangeText={(text) => this.setState({text})}
             onFocus={() => {this.onFocus(1)}}
             value={this.state.textinput[1]}
@@ -209,7 +213,7 @@ export default class App extends Component<Props> {
 
           <Text>Review of Systems</Text>
           <TextInput
-            style={styles.textInput}
+            style={this.state.activeField === 2 ? styles.textInputSelected : styles.textInput}
             onChangeText={(text) => this.setState({text})}
             onFocus={() => this.onFocus(2)}
             value={this.state.textinput[2]}
@@ -218,7 +222,7 @@ export default class App extends Component<Props> {
 
           <Text>Assessment</Text>
           <TextInput
-            style={styles.textInput}
+            style={this.state.activeField === 3 ? styles.textInputSelected : styles.textInput}
             onChangeText={(text) => this.setState({text})}
             onFocus={() => this.onFocus(3)}
             value={this.state.textinput[3]}
@@ -255,5 +259,17 @@ export default class App extends Component<Props> {
 }
 
   
+const mapStateToProps = (state) => {
+    return {
+        items: state.items,
+    };
+};
 
+const mapDispatchToProps = (dispatch) => {
+    return {
+        fetchData: (phone) => dispatch(fetchData(phone))
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
 
