@@ -6,11 +6,11 @@ import axios from 'axios';
 // get to https://healthnotes.herokuapp.com/1/getnotes/9177043031/
 export function fetchData(phone) {
     return dispatch => new Promise((resolve, reject) => {
-        console.log('fetchData ran', month, usergroup)
-        axios.get('https://healthnotes.herokuapp.com/1/'+ phone )
+        console.log('fetchData ran', phone)
+        axios.get('https://healthnotes.herokuapp.com/1/getnotes/'+ phone )
             .then((items) => {
                     dispatch(fetchDataSuccess(items.data)); 
-                    resolve()
+                    resolve(items.data)
                 })
             // .catch((error) => {AsyncStorage.removeItem('jwt'); console.log(error)});
     })

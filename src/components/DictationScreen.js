@@ -22,27 +22,29 @@ type Props = {};
 
 class App extends Component<Props> {
     constructor(props) {
-    super(props);
-    this.state = {
-      recognized: '',
-      pitch: '',
-      error: '',
-      end: '',
-      started: '',
-      results: [],
-      activeField: 0,
-      partialResults: [],
-      textinput: [],
-      recording: false
-    };
-    Voice.onSpeechStart = this.onSpeechStart.bind(this);
-    Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
-    Voice.onSpeechEnd = this.onSpeechEnd.bind(this);
-    Voice.onSpeechError = this.onSpeechError.bind(this);
-    Voice.onSpeechResults = this.onSpeechResults.bind(this);
-    Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
-    Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged.bind(this);
-    YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
+        super(props);
+        this.state = {
+          recognized: '',
+          pitch: '',
+          error: '',
+          end: '',
+          started: '',
+          results: [],
+          activeField: 0,
+          partialResults: [],
+          textinput: [],
+          recording: false
+        };
+        Voice.onSpeechStart = this.onSpeechStart.bind(this);
+        Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
+        Voice.onSpeechEnd = this.onSpeechEnd.bind(this);
+        Voice.onSpeechError = this.onSpeechError.bind(this);
+        Voice.onSpeechResults = this.onSpeechResults.bind(this);
+        Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
+        Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged.bind(this);
+        YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
+
+        this.props.fetchData('9177043031').then((res) => console.log(res))
   }
 
   componentDidMount() {
