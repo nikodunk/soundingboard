@@ -44,7 +44,7 @@ class App extends Component<Props> {
         Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged.bind(this);
         YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
 
-        this.props.fetchData('9177043031').then((res) => console.log(res))
+        
   }
 
   componentDidMount() {
@@ -54,6 +54,7 @@ class App extends Component<Props> {
     textinput[2] = ''
     textinput[3] = ''
     this.setState({textinput: textinput})
+    this.props.fetchData('9177043031').then((res) => console.log(this.props.items))
 
   }
 

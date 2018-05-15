@@ -10,7 +10,7 @@ export function fetchData(phone) {
         axios.get('https://healthnotes.herokuapp.com/1/getnotes/'+ phone )
             .then((items) => {
                     dispatch(fetchDataSuccess(items.data)); 
-                    resolve(items.data)
+                    resolve()
                 })
             // .catch((error) => {AsyncStorage.removeItem('jwt'); console.log(error)});
     })
@@ -23,11 +23,11 @@ export function fetchDataSuccess(items) {
 }
 
 
-// post to https://healthserve.herokuapp.com/2/toggledate/9177043031/2019-05-01
-export function putData(date, phoneNo) {
+// post to https://healthserve.herokuapp.com/1/addnote/:phoneNo/:patientID/:note
+export function putData(phoneNo, patientID, note) {
     return dispatch => new Promise((resolve, reject) => {
-        console.log('putData ran with date: ' + date + ', phoneNo: ' + phoneNo)
-        axios.post('https://healthserve.herokuapp.com/2/toggledate/' + phoneNo + '/' + date, { 
+        console.log('putData ran with note: ' + note + ', phoneNo: ' + phoneNo)
+        axios.post('https://healthserve.herokuapp.com/1/addnote/' + phoneNo + '/' + note, { 
             method: 'POST',
             headers: {
                 'mode': 'no-cors',
@@ -41,39 +41,3 @@ export function putData(date, phoneNo) {
     });
 }
 
-
-
-// get to https://healthserve.herokuapp.com/2/firstrun/9177043031
-export function fetchFirstrun(phone) {
-    return dispatch => new Promise((resolve, reject) => {
-        axios.get('https://healthserve.herokuapp.com/2/firstrun/'+ phone )
-            .then((items) => {
-                    resolve(items.data)
-                })
-    })
-}
-
-
-// post to https://healthserve.herokuapp.com/2/firstrun/9177043031
-export function setFirstrun(phone) {
-    return dispatch => new Promise((resolve, reject) => {
-        axios.post('https://healthserve.herokuapp.com/2/firstrun/'+ phone + '/toggle' )
-            .then((items) => {
-                    resolve(items.data)
-                })
-    })
-}
-
-
-
-
-// post to https://healthserve.herokuapp.com/2/alterusergroup/9177043031/stanim2019
-export function alterUsergroup(phone, usergroup) {
-    return dispatch => new Promise((resolve, reject) => {
-        
-        axios.post('https://healthserve.herokuapp.com/2/alterusergroup/'+ phone + '/'+ usergroup )
-            .then((items) => {
-                    resolve(items.data)
-                })
-    })
-}
