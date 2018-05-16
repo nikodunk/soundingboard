@@ -17,34 +17,24 @@ import { YellowBox } from 'react-native';
 import { connect } from 'react-redux';
 import { fetchData } from '../actions/actions';
 
-
 type Props = {};
 
-class App extends Component<Props> {
+class DictationScreen extends Component<Props> {
     constructor(props) {
         super(props);
         this.state = {
           recognized: '',
           pitch: '',
-          error: '',
-          end: '',
-          started: '',
           results: [],
           activeField: 0,
           partialResults: [],
           textinput: [],
           recording: false
         };
-        Voice.onSpeechStart = this.onSpeechStart.bind(this);
-        Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
-        Voice.onSpeechEnd = this.onSpeechEnd.bind(this);
-        Voice.onSpeechError = this.onSpeechError.bind(this);
         Voice.onSpeechResults = this.onSpeechResults.bind(this);
         Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
         Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged.bind(this);
         YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
-
-        
   }
 
   componentDidMount() {
@@ -54,36 +44,109 @@ class App extends Component<Props> {
     textinput[2] = ''
     textinput[3] = ''
     this.setState({textinput: textinput})
-    this.props.fetchData('9177043031').then((res) => console.log(this.props.items))
-
+    this.props.fetchData('9177043031').then((res) => console.log(this.props.items.notes))
   }
 
-  componentWillUnmount() {
+  componentDidUpdate(){
+    console.log(this.props.navigation.state.params)
+  }
+
+  toggleRecognizing() {
+    if (this.state.recording === false) { 
+      this.setState({recording: true}) 
+      console.log('start recording')
+      this._startRecognizing(); 
+     }
+    else{
+      this.setState({recording: false })
+      console.log('stop recording')
+      this._stopRecognizing();
+     }
+  }
+
+  onFocus(arrayNumber){
+    Keyboard.dismiss()
+    this.setState({activeField: arrayNumber})
+    console.log(arrayNumber)
+  }
+
+  render() {
+    return (
+      <View style={{flex: 1}}>
+        <View style={{marginTop: 30, marginLeft: 10}}>
+          <TouchableOpacity
+               onPress={() => this.props.navigation.openDrawer()}
+               activeOpacity={.4}
+               style={styles.hamburgerBar}>
+                  <Image style={styles.hamburger} source={require('../../assets/hamburger.png')} />
+                  <Text style={styles.title}><Text>{this.props.items.notes ? this.props.items.notes[this.props.navigation.getParam('patientId', '1')][0]["name"] : null}</Text></Text>
+          </TouchableOpacity>
+          <Text style={styles.instructions}>
+              Press the button and start speaking.
+          </Text>
+        </View>
+        <View style={styles.container}>
+          
+
+          <Text>HPI</Text>
+          <TextInput
+            style={this.state.activeField === 0 ? styles.textInputSelected : styles.textInput}
+            onChangeText={(text) => this.setState({text})}
+            onFocus={() => this.onFocus(0)}
+            value={this.state.textinput[0]}
+            multiline={true}
+          />
+
+          <Text>Social History</Text>
+          <TextInput
+            style={this.state.activeField === 1 ? styles.textInputSelected : styles.textInput}
+            onChangeText={(text) => this.setState({text})}
+            onFocus={() => {this.onFocus(1)}}
+            value={this.state.textinput[1]}
+            multiline={true}
+          />
+
+          <Text>Review of Systems</Text>
+          <TextInput
+            style={this.state.activeField === 2 ? styles.textInputSelected : styles.textInput}
+            onChangeText={(text) => this.setState({text})}
+            onFocus={() => this.onFocus(2)}
+            value={this.state.textinput[2]}
+            multiline={true}
+          />
+
+          <Text>Assessment</Text>
+          <TextInput
+            style={this.state.activeField === 3 ? styles.textInputSelected : styles.textInput}
+            onChangeText={(text) => this.setState({text})}
+            onFocus={() => this.onFocus(3)}
+            value={this.state.textinput[3]}
+            multiline={true}
+          />
+
+          {this.state.results.map((result, index) => {
+            return (
+              <Text
+                key={`result-${index}`}>
+                {result}
+              </Text>
+            )
+          })}
+
+          <View style={[styles.buttonImageContainer, { bottom: 10, right: 10, }]}> 
+            <TouchableOpacity
+                 onPress={  () => {this.toggleRecognizing();} }
+                 activeOpacity={.8}>
+                 <Image style={styles.buttonImage} ref={this.handleImageRef} source={require('../../assets/button.png')} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+    componentWillUnmount() {
     Voice.destroy().then(Voice.removeAllListeners);
-  }
-
-  onSpeechStart(e) {
-    this.setState({
-      started: '√',
-    });
-  }
-
-  onSpeechRecognized(e) {
-    this.setState({
-      recognized: '√',
-    });
-  }
-
-  onSpeechEnd(e) {
-    this.setState({
-      end: '√',
-    });
-  }
-
-  onSpeechError(e) {
-    this.setState({
-      error: JSON.stringify(e.error),
-    });
   }
 
   onSpeechResults(e) {
@@ -162,103 +225,6 @@ class App extends Component<Props> {
       end: ''
     });
   }
-
-  toggleRecognizing() {
-    if (this.state.recording === false) { 
-      this.setState({recording: true}) 
-      console.log('start recording')
-      this._startRecognizing(); 
-     }
-    else{
-      this.setState({recording: false })
-      console.log('stop recording')
-      this._stopRecognizing();
-     }
-  }
-
-  onFocus(arrayNumber){
-    Keyboard.dismiss()
-    this.setState({activeField: arrayNumber})
-    console.log(arrayNumber)
-  }
-
-  render() {
-    return (
-      <View style={{flex: 1}}>
-        <View style={{marginTop: 30, marginLeft: 10}}>
-          <View style={{flexDirection: 'row'}}>
-            <Text style={styles.welcome}>Patient Nicholas Dunkel</Text>
-          </View>
-          <Text style={styles.instructions}>
-              Press the button and start speaking.
-          </Text>
-        </View>
-        <View style={styles.container}>
-          
-
-          <Text>HPI</Text>
-          <TextInput
-            style={this.state.activeField === 0 ? styles.textInputSelected : styles.textInput}
-            onChangeText={(text) => this.setState({text})}
-            onFocus={() => this.onFocus(0)}
-            value={this.state.textinput[0]}
-            multiline={true}
-          />
-
-          <Text>Social History</Text>
-          <TextInput
-            style={this.state.activeField === 1 ? styles.textInputSelected : styles.textInput}
-            onChangeText={(text) => this.setState({text})}
-            onFocus={() => {this.onFocus(1)}}
-            value={this.state.textinput[1]}
-            multiline={true}
-          />
-
-          <Text>Review of Systems</Text>
-          <TextInput
-            style={this.state.activeField === 2 ? styles.textInputSelected : styles.textInput}
-            onChangeText={(text) => this.setState({text})}
-            onFocus={() => this.onFocus(2)}
-            value={this.state.textinput[2]}
-            multiline={true}
-          />
-
-          <Text>Assessment</Text>
-          <TextInput
-            style={this.state.activeField === 3 ? styles.textInputSelected : styles.textInput}
-            onChangeText={(text) => this.setState({text})}
-            onFocus={() => this.onFocus(3)}
-            value={this.state.textinput[3]}
-            multiline={true}
-          />
-
-          {this.state.results.map((result, index) => {
-            return (
-              <Text
-                key={`result-${index}`}>
-                {result}
-              </Text>
-            )
-          })}
-
-          <View style={[styles.buttonImageContainer, { bottom: 10, right: 10, }]}> 
-            <TouchableOpacity
-                 onPress={  () => {this.toggleRecognizing();} }
-                 activeOpacity={.8}>
-                 <Image style={styles.buttonImage} ref={this.handleImageRef} source={require('../../assets/button.png')} />
-            </TouchableOpacity>
-          </View>
-          <View style={[styles.buttonImageContainer, { bottom: 10, left: 10, }]}> 
-            <TouchableOpacity
-                 onPress={() => this.props.navigation.openDrawer()}
-                 activeOpacity={.8}>
-                 <Image style={styles.buttonImage} ref={this.handleImageRef} source={require('../../assets/hamburger.png')} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    );
-  }
 }
 
   
@@ -274,5 +240,4 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
-
+export default connect(mapStateToProps, mapDispatchToProps)(DictationScreen);

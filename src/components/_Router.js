@@ -1,8 +1,6 @@
 import {React, Component} from 'react';
 import { ScrollView,  StyleSheet, Text, View, TouchableOpacity, AsyncStorage, ActivityIndicator } from 'react-native';
-import { StackNavigator, SwitchNavigator, DrawerNavigator, DrawerView, DrawerItems } from 'react-navigation';
-// import { connect } from 'react-redux';
-// import { getToken } from '../actions/actions';
+import { SwitchNavigator, DrawerNavigator } from 'react-navigation';
 
 import DictationScreen from './DictationScreen'
 import styles from './_styles'
@@ -12,7 +10,7 @@ import SideMenu from './SideMenu';
 
 const SignedInRouter = DrawerNavigator(
 	{
-		Nicholas: {
+		DictationScreen: {
 		    screen: DictationScreen
 		  },
 	},

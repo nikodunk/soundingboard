@@ -1,42 +1,68 @@
 import { StyleSheet } from 'react-native';
 
 export default styles = StyleSheet.create({
-      
+    
+
+    // general 
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 0,
       },
-      welcome: {
-        fontSize: 20,
+
+    //dictation
+    hamburgerBar:{
+      flexDirection: 'row', 
+      marginTop: 15, 
+    },
+    hamburger: {
+        height: 16  ,
+        width: 25,
         margin: 10,
-        marginTop: 20
+        marginTop: 8
       },
-      instructions: {
-        color: '#333333',
-        marginLeft: 10
-      },
-      textInput:{
-        height: 100, width: 300, borderColor: 'gray', borderWidth: 1, borderRadius: 5, padding: 5, margin: 5
-      },
-      textInputSelected:{
-        height: 100, width: 300, borderColor: 'darkgrey', borderWidth: 1, borderRadius: 5, padding: 5, margin: 5, backgroundColor: 'rgb(220, 240, 250)'
-      },
-      loginContainer:{
-        marginTop: 0,
-        flex: 1
-      },
-      title:{
-        fontSize: 40,
+    title:{
         fontWeight: '900',
+        fontSize: 25,
       },
-      subtitle:{
+    instructions: {
+      color: '#333333',
+      marginLeft: 45
+    },
+    textInput:{
+      height: 100, 
+      width: 300, 
+      borderColor: 'gray', 
+      borderWidth: 1, 
+      borderRadius: 5, 
+      padding: 5, 
+      margin: 5
+    },
+    textInputSelected:{
+      height: 100, width: 300, borderColor: 'darkgrey', borderWidth: 1, borderRadius: 5, padding: 5, margin: 5, backgroundColor: 'rgb(220, 240, 250)'
+    },
+
+
+    
+    // sidebar
+    sidebarText: {
+      fontSize: 20,
+    },
+    sidebarTitle:{
         fontWeight: '900',
-        fontSize: 20,
-        width: 230,
-        textAlign: 'center',
+        fontSize: 25,
+        margin: 10,
+        color: 'white'
       },
+    separator:{
+        height: 1,
+        backgroundColor: "lightgrey",
+        marginBottom: 10
+      },
+
+
+      // other
       
       materialButton: {
         borderWidth:0,
@@ -94,11 +120,24 @@ export default styles = StyleSheet.create({
       text: {
         fontSize: 18,
       },
-      separator:{
-        height: 1,
-        width: "90%",
-        backgroundColor: "lightgrey",
-        marginLeft: '5%'
+      
+
+      buttonImageContainer: {
+        position: 'absolute', 
+        shadowColor: 'grey',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: .8,
+        shadowRadius: 5,
+        elevation: 5
+      },
+
+
+
+
+      // login shiat
+      loginContainer:{
+        marginTop: 0,
+        flex: 1
       },
       window:{
         margin: 30,
@@ -130,13 +169,5 @@ export default styles = StyleSheet.create({
         width: '80%', 
         marginLeft: '10%',
         marginRight: '10%'
-      },
-      buttonImageContainer: {
-        position: 'absolute', 
-        shadowColor: 'grey',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: .8,
-        shadowRadius: 5,
-        elevation: 5
       },
 }); 
