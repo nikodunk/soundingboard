@@ -31,8 +31,10 @@ export default styles = StyleSheet.create({
       marginLeft: 45
     },
     textInput:{
-      height: 100, 
-      width: 300, 
+      height: 250,
+      position: 'absolute',
+      top: 30,
+      width: '90%',
       borderColor: 'gray', 
       borderWidth: 1, 
       borderRadius: 5, 

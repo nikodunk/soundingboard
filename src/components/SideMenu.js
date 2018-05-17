@@ -11,12 +11,12 @@ import {ScrollView, Text, View, TouchableOpacity} from 'react-native';
 import styles from './_styles'
 import { connect } from 'react-redux';
 import DictationScreen from './DictationScreen'
- 
+import { DrawerActions } from 'react-navigation';
+
 
 class SideMenu extends PureComponent {
 
   render () {
-    const { navigate, state } = this.props.navigation;
 
     return (
       <View style={{flex: 1, marginTop: 30}}>        
@@ -28,7 +28,7 @@ class SideMenu extends PureComponent {
                         <TouchableOpacity 
                             style={{paddingLeft: 20, paddingBottom: 20}}
                             onPress={() => {
-                                    
+                                    this.props.navigation.dispatch(DrawerActions.closeDrawer())
                                     this.props.navigation.navigate('DictationScreen', {patientId: id})
                                   }}>
                       

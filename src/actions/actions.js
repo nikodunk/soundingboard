@@ -26,8 +26,8 @@ export function fetchDataSuccess(items) {
 // post to https://healthserve.herokuapp.com/1/addnote/:phoneNo/:patientID/:note
 export function putData(phoneNo, patientID, note) {
     return dispatch => new Promise((resolve, reject) => {
-        console.log('putData ran with note: ' + note + ', phoneNo: ' + phoneNo)
-        axios.post('https://healthserve.herokuapp.com/1/addnote/' + phoneNo + '/' + note, { 
+        console.log('putData ran with:' + phoneNo + ',' + patientID + ',' + note)
+        axios.post('https://healthserve.herokuapp.com/1/addnote/' + phoneNo + '/' + 'TestCase One' + '/' + patientID + '/' + note, { 
             method: 'POST',
             headers: {
                 'mode': 'no-cors',

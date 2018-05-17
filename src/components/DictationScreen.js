@@ -28,8 +28,8 @@ class DictationScreen extends Component<Props> {
           results: [],
           activeField: 0,
           partialResults: [],
-          textinput: [],
-          recording: false
+          recording: false,
+          cursorLocation: null
         };
         Voice.onSpeechResults = this.onSpeechResults.bind(this);
         Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
@@ -38,12 +38,6 @@ class DictationScreen extends Component<Props> {
   }
 
   componentDidMount() {
-    let textinput = []
-    textinput[0] = ''
-    textinput[1] = ''
-    textinput[2] = ''
-    textinput[3] = ''
-    this.setState({textinput: textinput})
     this.props.fetchData('9177043031').then((res) => console.log(this.props.items.notes))
   }
 
@@ -64,18 +58,14 @@ class DictationScreen extends Component<Props> {
      }
   }
 
-  onFocus(arrayNumber){
-    Keyboard.dismiss()
-    this.setState({activeField: arrayNumber})
-    console.log(arrayNumber)
-  }
 
   render() {
     return (
       <View style={{flex: 1}}>
+
         <View style={{marginTop: 30, marginLeft: 10}}>
           <TouchableOpacity
-               onPress={() => this.props.navigation.openDrawer()}
+               onPress={() => {this.props.navigation.openDrawer(); Keyboard.dismiss()}}
                activeOpacity={.4}
                style={styles.hamburgerBar}>
                   <Image style={styles.hamburger} source={require('../../assets/hamburger.png')} />
@@ -85,45 +75,21 @@ class DictationScreen extends Component<Props> {
               Press the button and start speaking.
           </Text>
         </View>
+
         <View style={styles.container}>
-          
-
-          <Text>HPI</Text>
           <TextInput
-            style={this.state.activeField === 0 ? styles.textInputSelected : styles.textInput}
-            onChangeText={(text) => this.setState({text})}
-            onFocus={() => this.onFocus(0)}
-            value={this.state.textinput[0]}
+            style={ styles.textInput}
+            value={this.props.items.notes ? this.props.items.notes[this.props.navigation.getParam('patientId', '1')][1]["note"] : null}
             multiline={true}
+            onSelectionChange={(event) => {console.log(this.state.cursorLocation); this.setState({cursorLocation: event.nativeEvent.selection}) }}
           />
-
-          <Text>Social History</Text>
-          <TextInput
-            style={this.state.activeField === 1 ? styles.textInputSelected : styles.textInput}
-            onChangeText={(text) => this.setState({text})}
-            onFocus={() => {this.onFocus(1)}}
-            value={this.state.textinput[1]}
-            multiline={true}
-          />
-
-          <Text>Review of Systems</Text>
-          <TextInput
-            style={this.state.activeField === 2 ? styles.textInputSelected : styles.textInput}
-            onChangeText={(text) => this.setState({text})}
-            onFocus={() => this.onFocus(2)}
-            value={this.state.textinput[2]}
-            multiline={true}
-          />
-
-          <Text>Assessment</Text>
-          <TextInput
-            style={this.state.activeField === 3 ? styles.textInputSelected : styles.textInput}
-            onChangeText={(text) => this.setState({text})}
-            onFocus={() => this.onFocus(3)}
-            value={this.state.textinput[3]}
-            multiline={true}
-          />
-
+          <View style={[styles.buttonImageContainer, { top: 250, right: 10, }]}> 
+            <TouchableOpacity
+                 onPress={  () => {this.toggleRecognizing();} }
+                 activeOpacity={.8}>
+                 <Image style={styles.buttonImage} ref={this.handleImageRef} source={require('../../assets/button.png')} />
+            </TouchableOpacity>
+          </View>
           {this.state.results.map((result, index) => {
             return (
               <Text
@@ -132,14 +98,6 @@ class DictationScreen extends Component<Props> {
               </Text>
             )
           })}
-
-          <View style={[styles.buttonImageContainer, { bottom: 10, right: 10, }]}> 
-            <TouchableOpacity
-                 onPress={  () => {this.toggleRecognizing();} }
-                 activeOpacity={.8}>
-                 <Image style={styles.buttonImage} ref={this.handleImageRef} source={require('../../assets/button.png')} />
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
     );
@@ -187,15 +145,8 @@ class DictationScreen extends Component<Props> {
   async _stopRecognizing(e) {
     try {
       await Voice.stop();
-      let textinput = [] 
-      textinput[0] = this.state.textinput[0]
-      textinput[1] = this.state.textinput[1]
-      textinput[2] = this.state.textinput[2]
-      textinput[3] = this.state.textinput[3]
-      textinput[this.state.activeField] = textinput[this.state.activeField] + ' ' + this.state.results[0]
-      this.setState({
-        textinput: textinput
-      })
+      this.props.items.notes[this.props.navigation.getParam('patientId', '1')][1]["note"] = this.props.items.notes[this.props.navigation.getParam('patientId', '1')][1]["note"].slice(0, this.state.cursorLocation['start']) + ' ' + this.state.results[0] + ' ' + this.props.items.notes[this.props.navigation.getParam('patientId', '1')][1]["note"].slice(this.state.cursorLocation['end'], this.props.items.notes[this.props.navigation.getParam('patientId', '1')][1]["note"].length)
+      // this.props.setText(this.props.items.notes[this.props.navigation.getParam('patientId', '1')][1]["note"], this.props.navigation.getParam('patientId', '1'))
     } catch (e) {
       console.error(e);
     }
