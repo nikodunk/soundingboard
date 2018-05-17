@@ -15,7 +15,7 @@ import styles from './_styles'
 import { YellowBox } from 'react-native';
 
 import { connect } from 'react-redux';
-import { fetchData } from '../actions/actions';
+import { fetchData, putData } from '../actions/actions';
 
 type Props = {};
 
@@ -39,10 +39,11 @@ class DictationScreen extends Component<Props> {
 
   componentDidMount() {
     this.props.fetchData('9177043031').then((res) => console.log(this.props.items.notes))
+    
   }
 
   componentDidUpdate(){
-    console.log(this.props.navigation.state.params)
+    // console.log(this.props.navigation.state.params)
   }
 
   toggleRecognizing() {
@@ -69,7 +70,7 @@ class DictationScreen extends Component<Props> {
                activeOpacity={.4}
                style={styles.hamburgerBar}>
                   <Image style={styles.hamburger} source={require('../../assets/hamburger.png')} />
-                  <Text style={styles.title}><Text>{this.props.items.notes ? this.props.items.notes[this.props.navigation.getParam('patientId', '1')][0]["name"] : null}</Text></Text>
+                  <Text style={styles.title}><Text>{this.props.items.notes ? this.props.items.notes[this.props.navigation.getParam('id', '1')][0]["name"] : null}</Text></Text>
           </TouchableOpacity>
           <Text style={styles.instructions}>
               Press the button and start speaking.
@@ -79,9 +80,10 @@ class DictationScreen extends Component<Props> {
         <View style={styles.container}>
           <TextInput
             style={ styles.textInput}
-            value={this.props.items.notes ? this.props.items.notes[this.props.navigation.getParam('patientId', '1')][1]["note"] : null}
+            value={this.props.items.notes ? this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"] : null}
             multiline={true}
-            onSelectionChange={(event) => {console.log(this.state.cursorLocation); this.setState({cursorLocation: event.nativeEvent.selection}) }}
+            onChangeText={(text) => {this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"] = text; this.props.putData('9177043031', this.props.navigation.getParam('id', '1'), this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"])}}
+            onSelectionChange={(event) => {this.setState({cursorLocation: event.nativeEvent.selection}) }}
           />
           <View style={[styles.buttonImageContainer, { top: 250, right: 10, }]}> 
             <TouchableOpacity
@@ -145,8 +147,8 @@ class DictationScreen extends Component<Props> {
   async _stopRecognizing(e) {
     try {
       await Voice.stop();
-      this.props.items.notes[this.props.navigation.getParam('patientId', '1')][1]["note"] = this.props.items.notes[this.props.navigation.getParam('patientId', '1')][1]["note"].slice(0, this.state.cursorLocation['start']) + ' ' + this.state.results[0] + ' ' + this.props.items.notes[this.props.navigation.getParam('patientId', '1')][1]["note"].slice(this.state.cursorLocation['end'], this.props.items.notes[this.props.navigation.getParam('patientId', '1')][1]["note"].length)
-      // this.props.setText(this.props.items.notes[this.props.navigation.getParam('patientId', '1')][1]["note"], this.props.navigation.getParam('patientId', '1'))
+      this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"] = this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"].slice(0, this.state.cursorLocation['start']) + ' ' + this.state.results[0] + ' ' + this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"].slice(this.state.cursorLocation['end'], this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"].length)
+      this.props.putData('9177043031', this.props.navigation.getParam('id', '1'), this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"])
     } catch (e) {
       console.error(e);
     }
@@ -187,7 +189,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        fetchData: (phone) => dispatch(fetchData(phone))
+        fetchData: (phone) => dispatch(fetchData(phone)),
+        putData: (phoneNo, patientid, note) => dispatch(putData(phoneNo, patientid, note)),
     };
 };
 

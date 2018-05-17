@@ -29,10 +29,10 @@ class SideMenu extends PureComponent {
                             style={{paddingLeft: 20, paddingBottom: 20}}
                             onPress={() => {
                                     this.props.navigation.dispatch(DrawerActions.closeDrawer())
-                                    this.props.navigation.navigate('DictationScreen', {patientId: id})
+                                    this.props.navigation.navigate('DictationScreen', {id: id})
                                   }}>
                       
-                              <Text style={styles.sidebarText}>{this.props.items.notes[id][0].name}</Text>
+                              <Text style={styles.sidebarText}>{this.props.items.notes[id] ? this.props.items.notes[id][0].name : null}</Text>
                         
                         </TouchableOpacity>
                         <View style={styles.separator} />
