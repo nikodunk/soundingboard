@@ -2,7 +2,7 @@ ehrMobile
 
 ----------
 
-![](assets/demo.mov)
+![](assets/demo.gif)
 
 iOS:
 

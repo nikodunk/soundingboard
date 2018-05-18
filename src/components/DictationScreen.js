@@ -92,14 +92,17 @@ class DictationScreen extends Component<Props> {
                  <Image style={styles.buttonImage} ref={this.handleImageRef} source={require('../../assets/button.png')} />
             </TouchableOpacity>
           </View>
-          {this.state.results.map((result, index) => {
-            return (
-              <Text
-                key={`result-${index}`}>
-                {result}
-              </Text>
-            )
-          })}
+          
+            {this.state.results.map((result, index) => {
+              return (
+                <Text
+                  style={{position: 'absolute', top: 290, left: 20, width: 250}}
+                  key={`result-${index}`}>
+                  {result}
+                </Text>
+              )
+            })}
+
         </View>
       </View>
     );
