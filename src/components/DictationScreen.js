@@ -5,11 +5,13 @@ import {
   Text,
   View,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Image,
-  TextInput, Keyboard
+  TextInput,
+  Keyboard,
+  KeyboardAvoidingView
 } from 'react-native';
 
-// import Icon from 'react-native-vector-icons/FontAwesome';
 import Voice from 'react-native-voice';
 import styles from './_styles'
 import { YellowBox } from 'react-native';
@@ -29,25 +31,26 @@ class DictationScreen extends Component<Props> {
           activeField: 0,
           partialResults: [],
           recording: false,
-          cursorLocation: null
+          cursorLocation: null,
+          originalNote: '',
+          originalCursorStart: null,
+          originalCursorEnd: null,
+          originalCursorLocation: null
         };
         Voice.onSpeechResults = this.onSpeechResults.bind(this);
         Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
-        Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged.bind(this);
         YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
   }
 
   componentDidMount() {
+    this.state.originalCursorLocation = this.state.cursorLocation
     this.props.fetchData('9177043031').then((res) => console.log(this.props.items.notes))
-    
   }
 
-  componentDidUpdate(){
-    // console.log(this.props.navigation.state.params)
-  }
 
   toggleRecognizing() {
     if (this.state.recording === false) { 
+      Keyboard.dismiss()
       this.setState({recording: true}) 
       console.log('start recording')
       this._startRecognizing(); 
@@ -55,8 +58,15 @@ class DictationScreen extends Component<Props> {
     else{
       this.setState({recording: false })
       console.log('stop recording')
-      this._stopRecognizing();
+      this._stopRecognizing()
+      
      }
+  }
+
+  openDrawer(){
+        this.setState({cursorLocation: {end: 0, start: 0} })
+        Keyboard.dismiss()
+        this.props.navigation.openDrawer();
   }
 
 
@@ -66,44 +76,37 @@ class DictationScreen extends Component<Props> {
 
         <View style={{marginTop: 30, marginLeft: 10}}>
           <TouchableOpacity
-               onPress={() => {this.props.navigation.openDrawer(); Keyboard.dismiss()}}
-               activeOpacity={.4}
-               style={styles.hamburgerBar}>
+              onPress={() => this.openDrawer() }
+              activeOpacity={.4}
+              style={styles.hamburgerBar}>
                   <Image style={styles.hamburger} source={require('../../assets/hamburger.png')} />
                   <Text style={styles.title}><Text>{this.props.items.notes ? this.props.items.notes[this.props.navigation.getParam('id', '1')][0]["name"] : null}</Text></Text>
           </TouchableOpacity>
-          <Text style={styles.instructions}>
-              Press the button and start speaking.
-          </Text>
         </View>
+        
+          <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
+              
+              <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+                <TextInput
+                  underlineColorAndroid="transparent"
+                  style={ styles.textInput}
+                  value={this.props.items.notes ? this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"] : null}
+                  multiline={true}
+                  onChangeText={(text) => {this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"] = text; this.props.putData('9177043031', this.props.navigation.getParam('id', '1'), this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"])}}
+                  onSelectionChange={(event) => {this.setState({cursorLocation: event.nativeEvent.selection}) }}
+                />
+              </TouchableWithoutFeedback>
 
-        <View style={styles.container}>
-          <TextInput
-            style={ styles.textInput}
-            value={this.props.items.notes ? this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"] : null}
-            multiline={true}
-            onChangeText={(text) => {this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"] = text; this.props.putData('9177043031', this.props.navigation.getParam('id', '1'), this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"])}}
-            onSelectionChange={(event) => {this.setState({cursorLocation: event.nativeEvent.selection}) }}
-          />
-          <View style={[styles.buttonImageContainer, { top: 250, right: 10, }]}> 
-            <TouchableOpacity
-                 onPress={  () => {this.toggleRecognizing();} }
-                 activeOpacity={.8}>
-                 <Image style={styles.buttonImage} ref={this.handleImageRef} source={require('../../assets/button.png')} />
-            </TouchableOpacity>
-          </View>
-          
-            {this.state.results.map((result, index) => {
-              return (
-                <Text
-                  style={{position: 'absolute', top: 290, left: 20, width: 250}}
-                  key={`result-${index}`}>
-                  {result}
-                </Text>
-              )
-            })}
-
-        </View>
+              <View style={!this.state.recording ? styles.buttonImageContainer : styles.buttonImageContainerRecording}> 
+                <TouchableOpacity
+                     onPress={  () => {this.toggleRecognizing();} }
+                     activeOpacity={.8}>
+                     <Image style={styles.buttonImage} ref={this.handleImageRef} source={!this.state.recording ? require('../../assets/button.png') : require('../../assets/buttonRecording.png')} />
+                </TouchableOpacity>
+              </View>
+            
+          </KeyboardAvoidingView>
+        
       </View>
     );
   }
@@ -116,19 +119,9 @@ class DictationScreen extends Component<Props> {
     this.setState({
       results: e.value,
     });
+
   }
 
-  onSpeechPartialResults(e) {
-    this.setState({
-      partialResults: e.value,
-    });
-  }
-
-  onSpeechVolumeChanged(e) {
-    this.setState({
-      pitch: e.value,
-    });
-  }
 
   async _startRecognizing(e) {
     this.setState({
@@ -140,6 +133,10 @@ class DictationScreen extends Component<Props> {
       partialResults: [],
       end: ''
     });
+    let patientID = this.props.navigation.getParam('id', '1')
+    this.setState({originalNote: this.props.items.notes[patientID][1]["note"] })
+    this.setState({originalCursorStart: this.state.cursorLocation['start']})
+    this.setState({originalCursorEnd: this.state.cursorLocation['end']})
     try {
       await Voice.start('en-US');
     } catch (e) {
@@ -147,11 +144,20 @@ class DictationScreen extends Component<Props> {
     }
   }
 
+  onSpeechPartialResults(e) {
+    this.setState({
+      partialResults: e.value,
+    });
+    let patientID = this.props.navigation.getParam('id', '1')
+    this.props.items.notes[patientID][1]["note"] = this.state.originalNote.slice(0, this.state.originalCursorStart) + ' ' + this.state.results[0] + ' ' + this.state.originalNote.slice(this.state.originalCursorEnd, this.state.originalNote.length)
+  }
+
   async _stopRecognizing(e) {
     try {
       await Voice.stop();
-      this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"] = this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"].slice(0, this.state.cursorLocation['start']) + ' ' + this.state.results[0] + ' ' + this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"].slice(this.state.cursorLocation['end'], this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"].length)
-      this.props.putData('9177043031', this.props.navigation.getParam('id', '1'), this.props.items.notes[this.props.navigation.getParam('id', '1')][1]["note"])
+      let patientID = this.props.navigation.getParam('id', '1')
+      this.props.items.notes[patientID][1]["note"] = this.state.originalNote.slice(0, this.state.originalCursorStart) + ' ' + this.state.results[0] + ' ' + this.state.originalNote.slice(this.state.originalCursorEnd, this.state.originalNote.length)
+      this.props.putData('9177043031', patientID, this.props.items.notes[patientID][1]["note"])
     } catch (e) {
       console.error(e);
     }

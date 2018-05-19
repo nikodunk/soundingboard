@@ -19,10 +19,11 @@ class SideMenu extends PureComponent {
   render () {
 
     return (
-      <View style={{flex: 1, marginTop: 30}}>        
+      <View style={{flex: 1, marginTop: 50}}>        
         <ScrollView
           contentContainerStyle={{ flex: 1, flexDirection: 'column'}}
            >
+           
            {this.props.items.notes ? Object.keys(this.props.items.notes).map((id) =>
                     <View key={id}>
                         <TouchableOpacity 

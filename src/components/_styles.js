@@ -31,18 +31,15 @@ export default styles = StyleSheet.create({
       marginLeft: 45
     },
     textInput:{
-      height: 250,
-      position: 'absolute',
-      top: 30,
-      width: '90%',
+      height: '90%',
+      width: '90%',  
       borderColor: 'gray', 
       borderWidth: 1, 
       borderRadius: 5, 
       padding: 5, 
-      margin: 5
-    },
-    textInputSelected:{
-      height: 100, width: 300, borderColor: 'darkgrey', borderWidth: 1, borderRadius: 5, padding: 5, margin: 5, backgroundColor: 'rgb(220, 240, 250)'
+      margin: 5,
+      top: 30,
+      fontSize: 20
     },
 
 
@@ -60,7 +57,9 @@ export default styles = StyleSheet.create({
     separator:{
         height: 1,
         backgroundColor: "lightgrey",
-        marginBottom: 10
+        marginBottom: 12,
+        marginLeft: '5%',
+        marginRight: '5%',
       },
 
 
@@ -125,12 +124,21 @@ export default styles = StyleSheet.create({
       
 
       buttonImageContainer: {
-        position: 'absolute', 
-        shadowColor: 'grey',
+        shadowColor: 'cyan',
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: .8,
         shadowRadius: 5,
-        elevation: 5
+        elevation: 5,
+        bottom: 30,
+      },
+
+      buttonImageContainerRecording: {
+        shadowColor: 'red',
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: .8,
+        shadowRadius: 5,
+        elevation: 8,
+        bottom: 30,
       },
 
 
