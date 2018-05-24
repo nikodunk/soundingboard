@@ -138,6 +138,7 @@ export default styles = StyleSheet.create({
         shadowOpacity: .8,
         shadowRadius: 5,
         elevation: 8,
+        marginTop: 10
         
       },
 
