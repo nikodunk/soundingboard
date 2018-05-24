@@ -6,7 +6,6 @@ export default styles = StyleSheet.create({
     // general 
     container: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
         elevation: 0,
       },
@@ -31,8 +30,8 @@ export default styles = StyleSheet.create({
       marginLeft: 45
     },
     textInput:{
-      height: '90%',
-      width: '90%',  
+      flex: 1,
+      width: '90%', 
       borderColor: 'gray', 
       borderWidth: 1, 
       borderRadius: 5, 
@@ -124,12 +123,13 @@ export default styles = StyleSheet.create({
       
 
       buttonImageContainer: {
-        shadowColor: 'cyan',
+        shadowColor: 'dodgerblue',
         shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: .8,
+        shadowOpacity: 1,
         shadowRadius: 5,
         elevation: 5,
-        bottom: 30,
+        marginTop: 10
+        
       },
 
       buttonImageContainerRecording: {
@@ -138,7 +138,7 @@ export default styles = StyleSheet.create({
         shadowOpacity: .8,
         shadowRadius: 5,
         elevation: 8,
-        bottom: 30,
+        
       },
 
 

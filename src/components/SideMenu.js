@@ -41,8 +41,8 @@ class SideMenu extends PureComponent {
                     ) : null }
         </ScrollView>
 
-        <View style={{height: 100, backgroundColor: 'grey'}}>
-            <Text style={styles.sidebarTitle}>Pokédoc </Text>
+        <View style={{height: 100, backgroundColor: '#00d0c9'}}>
+            <Text style={styles.sidebarTitle}>simple soap</Text>
         </View>
         
       </View>
