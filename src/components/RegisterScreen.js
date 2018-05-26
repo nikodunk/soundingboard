@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, Button, AsyncStorage, TextInput, TouchableOpaci
 import { connect } from 'react-redux';
 import { register } from '../actions/actions';
 import styles from './_styles'
-import Icon from 'react-native-vector-icons/FontAwesome';
 import * as Animatable from 'react-native-animatable';
 
 
@@ -43,23 +42,6 @@ class RegisterScreen extends React.Component {
               <ImageBackground source={require('../../assets/1.jpg')} style={[styles.loginContainer, { flex: 1, width: '100%'}]}>
                 <View style={styles.loginBox}>
 
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <View style={{flex:.3}}>
-                      <Text>Full Name</Text>
-                    </View>
-                    <View style={{flex:.7}}>
-                      <Animatable.View animation="rubberBand" easing="ease-out">
-                        <TextInput 
-                          underlineColorAndroid="transparent"
-                          style={styles.input}
-                          placeholder={'Jane Zoidberg'}
-                          autoFocus={true}
-                          autoCorrect={false}
-                          autoCapitalize={'words'}
-                          onChangeText={(text) => {  this.setState({'name': text})}} />
-                      </Animatable.View>
-                    </View>
-                  </View>
 
                   <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <View style={{flex:.3}}>
@@ -77,31 +59,12 @@ class RegisterScreen extends React.Component {
                   </View>
   
                   
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <View style={{flex:.3}}>
-                      <Text>Join Group (or start your own)</Text>
-                    </View>
-                    <View style={{flex:.7}}>
-                        
-
-                        <TextInput 
-                        underlineColorAndroid="transparent"
-                        style={styles.input}
-                        placeholder={'mygroupcode123'}
-                        autoCorrect={false}
-                        autoCapitalize={'none'}
-                        onChangeText={(text) => {  this.setState({'usergroup': text}) }} />
-        
-                      
-                    </View> 
-                  </View>
 
                   <TouchableOpacity 
                             style={styles.materialButtonLong}
                             onPress={() => this.register()} >
                           <Text style={styles.materialButtonTextLong}>
-                            Finalize &nbsp;
-                            <Icon name={"arrow-right"} size={20} color="white" />
+                            Finalize
                           </Text>
                   </TouchableOpacity> 
                   

@@ -10,7 +10,9 @@ import {
   TextInput,
   Keyboard,
   KeyboardAvoidingView,
-  Alert
+  Alert,
+  ActivityIndicator,
+  AsyncStorage
 } from 'react-native';
 
 import Voice from 'react-native-voice';
@@ -39,7 +41,9 @@ class DictationScreen extends Component<Props> {
           originalCursorLocation: null,
           previousNote: null,
           typing: false,
-          typingTimeOut: 0
+          typingTimeOut: 0,
+          serverUp: false,
+          phoneNo: '',
         };
         Voice.onSpeechResults = this.onSpeechResults.bind(this);
         Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
@@ -48,8 +52,12 @@ class DictationScreen extends Component<Props> {
   }
 
   componentDidMount() {
+    AsyncStorage.getItem('phone').then((res) => {
+        this.setState({phoneNo: res}) 
+        this.props.fetchData(res).then((resdata) => {console.log(this.props.items.notes); this.setState({serverUp: true})})
+      })
     this.state.originalCursorLocation = this.state.cursorLocation
-    this.props.fetchData('9177043031').then((res) => console.log(this.props.items.notes))
+    
   }
 
 
@@ -71,8 +79,8 @@ class DictationScreen extends Component<Props> {
   openDrawer(){
         this.setState({cursorLocation: {end: 0, start: 0} })
         Keyboard.dismiss()
-        this.props.putData('9177043031', this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
-          () => this.props.fetchData('9177043031')
+        this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
+          () => this.props.fetchData(this.state.phoneNo)
         )
         this.props.navigation.openDrawer();
   }
@@ -81,8 +89,8 @@ class DictationScreen extends Component<Props> {
     if(this.timeout) clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
       this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"] = text;
-      this.props.putData('9177043031', this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
-          () => this.props.fetchData('9177043031')
+      this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
+          () => this.props.fetchData(this.state.phoneNo)
         )
     }, 3000);
   }
@@ -91,16 +99,16 @@ class DictationScreen extends Component<Props> {
   undo() {
     let patientID = this.props.navigation.getParam('id', '0')
     this.props.items.notes[patientID][1]["note"] = this.state.previousNote
-    this.props.putData('9177043031', this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
-          () => this.props.fetchData('9177043031')
+    this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
+          () => this.props.fetchData(this.state.phoneNo)
         )
   }
 
   clear() {
     let patientID = this.props.navigation.getParam('id', '0')
     this.props.items.notes[patientID][1]["note"] = ' '
-    this.props.putData('9177043031', this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
-          () => this.props.fetchData('9177043031')
+    this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
+          () => this.props.fetchData(this.state.phoneNo)
         )
   }
 
@@ -140,8 +148,8 @@ class DictationScreen extends Component<Props> {
       await Voice.stop();
       let patientID = this.props.navigation.getParam('id', '0')
       this.props.items.notes[patientID][1]["note"] = this.state.originalNote.slice(0, this.state.originalCursorStart) + ' ' + this.state.results[0] + ' ' + this.state.originalNote.slice(this.state.originalCursorEnd, this.state.originalNote.length)
-      this.props.putData('9177043031', this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
-          () => this.props.fetchData('9177043031')
+      this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
+          () => this.props.fetchData(this.state.phoneNo)
         )
     } catch (e) {
       console.error(e);
@@ -150,6 +158,8 @@ class DictationScreen extends Component<Props> {
 
   render() {
     return (
+    <View style={{flex: 1, width: '100%'}}>
+      { this.state.serverUp ? 
       <View style={{flex: 1, width: '100%'}}>
         <View style={{marginTop: 30, marginLeft: 10, flexDirection: 'row'}}>
           <TouchableOpacity
@@ -223,6 +233,11 @@ class DictationScreen extends Component<Props> {
           </KeyboardAvoidingView>
         
       </View>
+      : <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
+          <ActivityIndicator />
+        </View>
+       }
+    </View>
     );
   }
 

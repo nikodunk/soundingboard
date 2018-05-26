@@ -3,9 +3,10 @@ import { StyleSheet, Text, View, Button, AsyncStorage, StatusBar, TextInput, Tou
 import { connect } from 'react-redux';
 import { fetchUser, sendPIN } from '../actions/actions';
 import styles from './_styles'
-import Icon from 'react-native-vector-icons/FontAwesome';
 import * as Animatable from 'react-native-animatable';
+import { YellowBox } from 'react-native';
 
+YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
 
 
 
@@ -65,8 +66,7 @@ class LoginScreen extends React.Component {
                             style={styles.materialButtonLong}
                             onPress={(text) => this._signInAsync(this.state.pin)} >
                           <Text style={styles.materialButtonTextLong}>
-                            Login &nbsp;
-                            <Icon name={"arrow-right"} size={20} color="white" />
+                            Login
                           </Text>
                   </TouchableOpacity> 
                   <Text></Text>

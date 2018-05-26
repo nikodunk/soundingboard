@@ -7,7 +7,7 @@
 import PropTypes from 'prop-types';
 import React, {PureComponent} from 'react';
 import {NavigationActions} from 'react-navigation';
-import {ScrollView, Text, View, TouchableOpacity} from 'react-native';
+import {ScrollView, Text, View, TouchableOpacity, AsyncStorage} from 'react-native';
 import styles from './_styles'
 import { connect } from 'react-redux';
 import DictationScreen from './DictationScreen'
@@ -15,6 +15,13 @@ import { DrawerActions } from 'react-navigation';
 
 
 class SideMenu extends PureComponent {
+
+
+  _signOutAsync = async () => {
+    await AsyncStorage.clear();
+    this.props.navigation.navigate('Auth');
+  };
+
 
   render () {
 
@@ -32,7 +39,6 @@ class SideMenu extends PureComponent {
                                     this.props.navigation.dispatch(DrawerActions.closeDrawer())
                                     this.props.navigation.navigate('DictationScreen', {id: id})
                                   }}>
-                      
                               <Text style={styles.sidebarText}>{this.props.items.notes[id] ? this.props.items.notes[id][0].name : null}</Text>
                         
                         </TouchableOpacity>
@@ -40,9 +46,16 @@ class SideMenu extends PureComponent {
                     </View>
                     ) : null }
         </ScrollView>
-
+        
         <View style={{height: 100, backgroundColor: '#00d0c9'}}>
             <Text style={styles.sidebarTitle}>simple soap</Text>
+            <TouchableOpacity 
+                style={{paddingLeft: 10,  position: 'absolute', bottom: 20}}
+                onPress={this._signOutAsync} >
+              <Text>
+                Logout
+              </Text>
+            </TouchableOpacity> 
         </View>
         
       </View>

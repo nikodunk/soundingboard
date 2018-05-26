@@ -34,11 +34,9 @@ class AuthScreen extends React.Component {
                     <View style={styles.loginBox}><ActivityIndicator color="black" /></View> : 
                     <View style={styles.loginBox}>
                       <Animatable.View animation="tada" easing="ease-out">
-                          <Image style={styles.buttonImage} source={require('../../assets/logo.png')} />
+                          <Text style={styles.title}>simple soap</Text>
                       </Animatable.View>
-                      <Text style={[styles.subtitle, {color: 'white'}]}>Helps you find time to hang with friends.</Text>
-                      <Text> </Text>
-                      <Text style={styles.label}>A chill 💊 by Libo and Niko</Text>
+                      <Text style={[styles.subtitle, {color: 'white'}]}>Mobile EMR/EHR Note Dictation</Text>
                       <Text> </Text>
                       <Text> </Text>
                       <TextInput 
