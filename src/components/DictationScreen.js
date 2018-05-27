@@ -261,7 +261,7 @@ class DictationScreen extends Component<Props> {
                   <TouchableOpacity
                        onPress={ () => this.keyboardToggle() }
                        activeOpacity={.8}>
-                       <Image style={{height: 30, width: 30, marginLeft: 20, marginTop: 45}}  source={ require('../../assets/keyboard.png') } />
+                       <Image style={{height: 30, width: 30, marginLeft: 20, marginTop: 40}}  source={ require('../../assets/keyboard.png') } />
                   </TouchableOpacity>
                 </View>
               </Animatable.View>
