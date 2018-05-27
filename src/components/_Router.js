@@ -19,7 +19,9 @@ SignedInRouter = createDrawerNavigator(
 		  },
 	},
 	{
-		contentComponent: SideMenu
+		contentComponent: ({ navigation }) => (
+    <SideMenu navigation={navigation} />
+  ),
 	}
 )
 

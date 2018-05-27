@@ -33,10 +33,12 @@ class AuthScreen extends React.Component {
                   {this.state.loading ? 
                     <View style={styles.loginBox}><ActivityIndicator color="black" /></View> : 
                     <View style={styles.loginBox}>
-                      <Animatable.View animation="tada" easing="ease-out">
-                          <Text style={styles.title}>simple soap</Text>
+                      <Animatable.View animation="bounceIn" easing="ease-out">
+                          <Text style={styles.title}>simple</Text>
+                          <Text style={styles.title}>soap</Text>
                       </Animatable.View>
-                      <Text style={[styles.subtitle, {color: 'white'}]}>Mobile EMR/EHR Note Dictation</Text>
+                      <Text> </Text>
+                      <Text style={styles.subtitle}>Mobile EMR/EHR Note Dictation</Text>
                       <Text> </Text>
                       <Text> </Text>
                       <TextInput 

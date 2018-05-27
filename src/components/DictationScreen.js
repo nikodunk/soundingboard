@@ -21,6 +21,7 @@ import { YellowBox } from 'react-native';
 
 import { connect } from 'react-redux';
 import { fetchData, putData } from '../actions/actions';
+import TouchID from 'react-native-touch-id';
 
 type Props = {};
 
@@ -44,6 +45,8 @@ class DictationScreen extends Component<Props> {
           typingTimeOut: 0,
           serverUp: false,
           phoneNo: '',
+          unlocked: false,
+          enrolledInBiometry: true,
         };
         Voice.onSpeechResults = this.onSpeechResults.bind(this);
         Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
@@ -52,6 +55,19 @@ class DictationScreen extends Component<Props> {
   }
 
   componentDidMount() {
+    TouchID.isSupported()
+      .then(biometryType => {
+        // Success code
+        TouchID.authenticate('Unlock with your fingerprint').then(success =>
+          this.setState({ unlocked: true }),
+        );
+      })
+      .catch(error => {
+        this.setState({ unlocked: true }),
+        this.setState({ enrolledInBiometry: false })
+        console.log('your device doesnt support touchID');
+      });
+
     AsyncStorage.getItem('phone').then((res) => {
         this.setState({phoneNo: res}) 
         this.props.fetchData(res).then((resdata) => {console.log(this.props.items.notes); this.setState({serverUp: true})})
@@ -77,12 +93,13 @@ class DictationScreen extends Component<Props> {
   }
 
   openDrawer(){
+        {this.state.recording ? this._stopRecognizing(e) : null }
         this.setState({cursorLocation: {end: 0, start: 0} })
         Keyboard.dismiss()
-        this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
-          () => this.props.fetchData(this.state.phoneNo)
-        )
-        this.props.navigation.openDrawer();
+        this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"])
+          .then(() => {this.props.fetchData(this.state.phoneNo)})
+          .then(() => this.props.navigation.openDrawer())
+        
   }
 
   changeNote(text){
@@ -92,7 +109,7 @@ class DictationScreen extends Component<Props> {
       this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
           () => this.props.fetchData(this.state.phoneNo)
         )
-    }, 3000);
+    }, 500);
   }
 
 
@@ -147,6 +164,7 @@ class DictationScreen extends Component<Props> {
     try {
       await Voice.stop();
       let patientID = this.props.navigation.getParam('id', '0')
+      if (this.state.results[0] === undefined){Alert.alert('No Voice input detected! Please speak louder, get better WiFi, or give your connection more time.')}
       this.props.items.notes[patientID][1]["note"] = this.state.originalNote.slice(0, this.state.originalCursorStart) + ' ' + this.state.results[0] + ' ' + this.state.originalNote.slice(this.state.originalCursorEnd, this.state.originalNote.length)
       this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
           () => this.props.fetchData(this.state.phoneNo)
@@ -161,13 +179,14 @@ class DictationScreen extends Component<Props> {
     <View style={{flex: 1, width: '100%'}}>
       { this.state.serverUp ? 
       <View style={{flex: 1, width: '100%'}}>
+      { this.state.unlocked ? 
         <View style={{marginTop: 30, marginLeft: 10, flexDirection: 'row'}}>
           <TouchableOpacity
               onPress={() => this.openDrawer() }
               activeOpacity={.4}
               style={styles.hamburgerBar}>
                   <Image style={styles.hamburger} source={require('../../assets/hamburger.png')} />
-                  <Text style={styles.title}><Text>{this.props.items.notes ? this.props.items.notes[this.props.navigation.getParam('id', '0')][0]["name"] : null}</Text></Text>
+                  <Text style={styles.title}><Text>Slot {this.props.items.notes ? this.props.navigation.getParam('id', '0') : null}</Text></Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -181,12 +200,12 @@ class DictationScreen extends Component<Props> {
                                   ]
                                 )}
           >
-            <Text >
+            <Text style={{color: 'darkred'}}>
               Clear
             </Text>
           </TouchableOpacity>
-        </View>
-        
+        </View> : null }
+        { this.state.unlocked ? 
           <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
               
               
@@ -212,7 +231,7 @@ class DictationScreen extends Component<Props> {
                 </View> : 
                 <View>
                        <Image style={{height: 30, width: 30, marginRight: 20, marginTop: 40, opacity: .2}}  source={ require('../../assets/undo.png') } />
-                </View>}
+                </View> }
 
                 <View style={!this.state.recording ? styles.buttonImageContainer : styles.buttonImageContainerRecording}> 
                   <TouchableOpacity
@@ -231,10 +250,12 @@ class DictationScreen extends Component<Props> {
                 </View>
               </View>
           </KeyboardAvoidingView>
-        
+        : null }
       </View>
       : <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
           <ActivityIndicator />
+          <Text> </Text>
+          {this.state.enrolledInBiometry ? null : <Text style={styles.title}>Set up FaceID / TouchID for more security!</Text>}
         </View>
        }
     </View>

@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, AsyncStorage, StatusBar, TextInput, TouchableOpacity, ImageBackground, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, Button, AsyncStorage, StatusBar, TextInput, TouchableOpacity, ImageBackground, ActivityIndicator, YellowBox } from 'react-native';
 import { connect } from 'react-redux';
 import { fetchUser, sendPIN } from '../actions/actions';
 import styles from './_styles'
 import * as Animatable from 'react-native-animatable';
-import { YellowBox } from 'react-native';
+
+
 
 YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
 
@@ -49,10 +50,10 @@ class LoginScreen extends React.Component {
                   <Text></Text>
                   <Text style={[styles.title]}>Welcome!</Text>
                   <Text> </Text>
-
+                  
                   <Text style={styles.subtitle}>Please enter your PIN</Text>
                   <Text> </Text>
-                  <Animatable.View animation="rubberBand" easing="ease-out">
+                  <Animatable.View animation="bounceIn" easing="ease-out">
                     <TextInput
                       underlineColorAndroid="transparent"
                       style={styles.input}

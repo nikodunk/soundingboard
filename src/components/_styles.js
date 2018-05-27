@@ -24,6 +24,7 @@ export default styles = StyleSheet.create({
     title:{
         fontWeight: '900',
         fontSize: 25,
+        textAlign: 'center'
       },
     instructions: {
       color: '#333333',

@@ -24,7 +24,6 @@ class SideMenu extends PureComponent {
 
 
   render () {
-
     return (
       <View style={{flex: 1, marginTop: 50}}>        
         <ScrollView
@@ -39,7 +38,7 @@ class SideMenu extends PureComponent {
                                     this.props.navigation.dispatch(DrawerActions.closeDrawer())
                                     this.props.navigation.navigate('DictationScreen', {id: id})
                                   }}>
-                              <Text style={styles.sidebarText}>{this.props.items.notes[id] ? this.props.items.notes[id][0].name : null}</Text>
+                              <Text style={styles.sidebarText}>Slot {this.props.items.notes[id] ? this.props.items.notes[id][0]['id'] : null}</Text>
                         
                         </TouchableOpacity>
                         <View style={styles.separator} />
