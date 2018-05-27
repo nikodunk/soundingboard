@@ -12,12 +12,13 @@ import {
   KeyboardAvoidingView,
   Alert,
   ActivityIndicator,
-  AsyncStorage
+  AsyncStorage,
+  YellowBox
 } from 'react-native';
 
 import Voice from 'react-native-voice';
 import styles from './_styles'
-import { YellowBox } from 'react-native';
+import * as Animatable from 'react-native-animatable';
 
 import { connect } from 'react-redux';
 import { fetchData, putData } from '../actions/actions';
@@ -47,6 +48,7 @@ class DictationScreen extends Component<Props> {
           phoneNo: '',
           unlocked: false,
           enrolledInBiometry: true,
+          keyboardUp: false
         };
         Voice.onSpeechResults = this.onSpeechResults.bind(this);
         Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
@@ -97,7 +99,7 @@ class DictationScreen extends Component<Props> {
         this.setState({cursorLocation: {end: 0, start: 0} })
         Keyboard.dismiss()
         this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"])
-          .then(() => {this.props.fetchData(this.state.phoneNo)})
+          .then(() => this.props.fetchData(this.state.phoneNo))
           .then(() => this.props.navigation.openDrawer())
         
   }
@@ -174,6 +176,17 @@ class DictationScreen extends Component<Props> {
     }
   }
 
+  keyboardToggle(){
+    if(this.state.keyboardUp){
+          Keyboard.dismiss()
+          this.setState({keyboardUp: false})
+        }
+    else{
+      this.myTextInput.focus() 
+      this.setState({keyboardUp: true})
+    }
+  }
+
   render() {
     return (
     <View style={{flex: 1, width: '100%'}}>
@@ -200,9 +213,7 @@ class DictationScreen extends Component<Props> {
                                   ]
                                 )}
           >
-            <Text style={{color: 'darkred'}}>
-              Clear
-            </Text>
+            <Image style={{height: 30, width: 30}}  source={ require('../../assets/delete.png') } />
           </TouchableOpacity>
         </View> : null }
         { this.state.unlocked ? 
@@ -210,17 +221,20 @@ class DictationScreen extends Component<Props> {
               
               
               <TextInput
+                placeholder = "Start recording or typing"
+                ref={(input) => { this.myTextInput = input; }}
                 selectable={true}
                 underlineColorAndroid="transparent"
                 style={ styles.textInput}
                 value={this.props.items.notes ? this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"] : null}
                 multiline={true}
+                onFocus={() => this.setState({keyboardUp: true})}
                 onChangeText={text => this.changeNote(text)}
                 onSelectionChange={(event) => {this.setState({cursorLocation: event.nativeEvent.selection}) }}
               />
               
-
-              <View style={{flexDirection: 'row', height: 100}} >
+              <Animatable.View animation="slideInUp" duration={300} easing="ease-out" style={{flexDirection: 'row', height: 100}}>
+              
                 {this.state.previousNote ? 
                   <View>
                     <TouchableOpacity
@@ -233,22 +247,25 @@ class DictationScreen extends Component<Props> {
                        <Image style={{height: 30, width: 30, marginRight: 20, marginTop: 40, opacity: .2}}  source={ require('../../assets/undo.png') } />
                 </View> }
 
-                <View style={!this.state.recording ? styles.buttonImageContainer : styles.buttonImageContainerRecording}> 
-                  <TouchableOpacity
-                       onPress={  () => {this.toggleRecognizing();} }
-                       activeOpacity={.8}>
-                       <Image style={styles.buttonImage} ref={this.handleImageRef} source={!this.state.recording ? require('../../assets/button.png') : require('../../assets/buttonRecording.png')} />
-                  </TouchableOpacity>
-                </View>
+                
+                  <View style={!this.state.recording ? styles.buttonImageContainer : styles.buttonImageContainerRecording}> 
+                    <TouchableOpacity
+                         onPress={  () => {this.toggleRecognizing();} }
+                         activeOpacity={.8}>
+                         <Image style={styles.buttonImage} ref={this.handleImageRef} source={!this.state.recording ? require('../../assets/button.png') : require('../../assets/buttonRecording.png')} />
+                    </TouchableOpacity>
+                  </View>
+                
 
                 <View>
                   <TouchableOpacity
-                       onPress={  () => Keyboard.dismiss() }
+                       onPress={ () => this.keyboardToggle() }
                        activeOpacity={.8}>
-                       <Image style={{height: 30, width: 30, marginLeft: 20, marginTop: 40}}  source={ require('../../assets/keyboard.png') } />
+                       <Image style={{height: 30, width: 30, marginLeft: 20, marginTop: 45}}  source={ require('../../assets/keyboard.png') } />
                   </TouchableOpacity>
                 </View>
-              </View>
+              </Animatable.View>
+              
           </KeyboardAvoidingView>
         : null }
       </View>
