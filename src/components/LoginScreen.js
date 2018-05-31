@@ -14,89 +14,89 @@ YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTIm
 class LoginScreen extends React.Component {
 
 
-      constructor(props) {
-        super(props);
-        this.state = { loading: false,
-                        phoneNo: '',
-                        pin: '' };
-      }
-
-      componentDidMount() {
-        AsyncStorage.getItem('phone').then((res) => this.setState({phoneNo: res}))
-      }
-
-
-      _signInAsync = async (text) => {
-          this.setState({loading: true})
-          console.log('this.state.phoneNo:', this.state.phoneNo)
-          this.props.sendPIN(text, this.state.phoneNo)
-            .then(() => this.props.navigation.navigate('AuthLoading'))
-        }
-        
-        
-        
-
-
-      render() {
-          return (
-            <View style={styles.loginContainer }>
-              <ImageBackground source={require('../../assets/2.jpg')} style={[styles.loginContainer, { flex: 1, width: '100%'}]}>
-                <View style={styles.loginBox}>
-                  <StatusBar
-                     barStyle="dark-content"
-                   />
-                  <Text></Text>
-                  <Text></Text>
-                  <Text></Text>
-                  <Text style={[styles.title]}>Welcome!</Text>
-                  <Text> </Text>
-                  
-                  <Text style={styles.subtitle}>Please enter your PIN</Text>
-                  <Text> </Text>
-                  <Animatable.View animation="bounceIn" easing="ease-out">
-                    <TextInput
-                      underlineColorAndroid="transparent"
-                      style={styles.input}
-                      placeholder={'Confirmation Code'}
-                      autoFocus={true}
-                      keyboardType={'numeric'}
-                      onChangeText={(text) => { this.setState({pin: text}); text.length === 4 ? this._signInAsync(text) : null }} />
-                  </Animatable.View>
-                  <Text></Text>
-                  <TouchableOpacity 
-                            style={styles.materialButtonLong}
-                            onPress={(text) => this._signInAsync(this.state.pin)} >
-                          <Text style={styles.materialButtonTextLong}>
-                            Login
-                          </Text>
-                  </TouchableOpacity> 
-                  <Text></Text>
-                  <Button
-                    title="Back"
-                    style={{color: 'lightblue'}}
-                    onPress={() => this.props.navigation.goBack()} 
-                  />
-                  <Text> </Text>
-                  <Text> </Text>
-                  {this.state.loading ? <ActivityIndicator /> : null}
-                </View>
-              </ImageBackground>
-      </View>
-          );
-        }
+  constructor(props) {
+    super(props);
+    this.state = { loading: false,
+      phoneNo: '',
+      pin: '' };
     }
 
-const mapStateToProps = (state) => {
-    return {
-    };
-};
+    componentDidMount() {
+      AsyncStorage.getItem('phone').then((res) => this.setState({phoneNo: res}))
+    }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
+
+    _signInAsync = async (text) => {
+      this.setState({loading: true})
+      console.log('this.state.phoneNo:', this.state.phoneNo)
+      this.props.sendPIN(text, this.state.phoneNo)
+      .then(() => this.props.navigation.navigate('AuthLoading'))
+    }
+    
+    
+    
+
+
+    render() {
+      return (
+        <View style={styles.loginContainer }>
+        <ImageBackground source={require('../../assets/2.jpg')} style={[styles.loginContainer, { flex: 1, width: '100%'}]}>
+        <View style={styles.loginBox}>
+        <StatusBar
+        barStyle="dark-content"
+        />
+        <Text></Text>
+        <Text></Text>
+        <Text></Text>
+        <Text style={[styles.title]}>Welcome!</Text>
+        <Text> </Text>
+        
+        <Text style={styles.subtitle}>Please enter your PIN</Text>
+        <Text> </Text>
+        <Animatable.View animation="bounceIn" easing="ease-out">
+        <TextInput
+        underlineColorAndroid="transparent"
+        style={styles.input}
+        placeholder={'Confirmation Code'}
+        autoFocus={true}
+        keyboardType={'numeric'}
+        onChangeText={(text) => { this.setState({pin: text}); text.length === 4 ? this._signInAsync(text) : null }} />
+        </Animatable.View>
+        <Text></Text>
+        <TouchableOpacity 
+        style={styles.materialButtonLong}
+        onPress={(text) => this._signInAsync(this.state.pin)} >
+        <Text style={styles.materialButtonTextLong}>
+        Login
+        </Text>
+        </TouchableOpacity> 
+        <Text></Text>
+        <Button
+        title="Back"
+        style={{color: 'lightblue'}}
+        onPress={() => this.props.navigation.goBack()} 
+        />
+        <Text> </Text>
+        <Text> </Text>
+        {this.state.loading ? <ActivityIndicator /> : null}
+        </View>
+        </ImageBackground>
+        </View>
+        );
+      }
+    }
+
+    const mapStateToProps = (state) => {
+      return {
+      };
+    };
+
+    const mapDispatchToProps = (dispatch) => {
+      return {
         sendPIN: (PIN, phone) => dispatch(sendPIN(PIN, phone))
+      };
     };
-};
 
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen);
+    export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen);

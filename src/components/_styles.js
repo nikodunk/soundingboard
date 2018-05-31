@@ -24,25 +24,33 @@ export default styles = StyleSheet.create({
     title:{
         fontWeight: '900',
         fontSize: 25,
-        textAlign: 'center'
+        textAlign: 'center',
+        shadowColor: 'grey',
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.5,
+        shadowRadius: 7,
+        elevation: 5
       },
-    instructions: {
-      color: '#333333',
-      marginLeft: 45
-    },
     textInput:{
       flex: 1,
-      width: '90%', 
       borderColor: 'gray', 
       borderWidth: 1, 
       borderRadius: 5, 
       padding: 5, 
       margin: 5,
       top: 30,
+      fontSize: 20,
+      width: '90%'
+    },
+    textInputQuarter:{
+      flex: 1,
+      borderColor: 'gray', 
+      borderWidth: 1, 
+      borderRadius: 5, 
+      padding: 5, 
+      margin: 5,
       fontSize: 20
     },
-
-
     
     // sidebar
     sidebarText: {
@@ -52,7 +60,12 @@ export default styles = StyleSheet.create({
         fontWeight: '900',
         fontSize: 25,
         margin: 10,
-        color: 'white'
+        color: 'white',
+        shadowColor: 'grey',
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.5,
+        shadowRadius: 7,
+        elevation: 5
       },
     separator:{
         height: 1,
@@ -117,6 +130,7 @@ export default styles = StyleSheet.create({
       buttonImage:{
         width: 80,
         height: 80,
+
       },
       text: {
         fontSize: 18,

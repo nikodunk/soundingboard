@@ -215,7 +215,7 @@ class DictationScreen extends Component<Props> {
           >
             <Image style={{height: 30, width: 30}}  source={ require('../../assets/delete.png') } />
           </TouchableOpacity>
-        </View> : null }
+        </View> : null }
         { this.state.unlocked ? 
           <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
               
