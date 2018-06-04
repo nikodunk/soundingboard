@@ -12,17 +12,12 @@ import styles from './_styles'
 
 
 
-SignedInRouter = createDrawerNavigator(
-	{
-		DictationScreen: {
-		    screen: DictationScreen
-		  },
+SignedInRouter = createDrawerNavigator({
+		DictationScreen: { screen: DictationScreen },
 	},
-	{
-		contentComponent: ({ navigation }) => (
-    <SideMenu navigation={navigation} />
-  ),
-	}
+	{ 
+    contentComponent: ({ navigation }) => (<SideMenu navigation={navigation} /> ),
+  }
 )
 
 

@@ -13,7 +13,8 @@ import {
   Alert,
   ActivityIndicator,
   AsyncStorage,
-  YellowBox
+  YellowBox,
+  Linking
 } from 'react-native';
 
 import Voice from 'react-native-voice';
@@ -23,6 +24,10 @@ import * as Animatable from 'react-native-animatable';
 import { connect } from 'react-redux';
 import { fetchData, putData } from '../actions/actions';
 import TouchID from 'react-native-touch-id';
+import { GoogleAnalyticsTracker } from "react-native-google-analytics-bridge";
+let tracker = new GoogleAnalyticsTracker("UA-120230032-1");
+
+
 
 type Props = {};
 
@@ -53,7 +58,7 @@ class DictationScreen extends Component<Props> {
         Voice.onSpeechResults = this.onSpeechResults.bind(this);
         Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
         this.timeout =  0;
-        // YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
+        YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
   }
 
   componentDidMount() {
@@ -70,12 +75,16 @@ class DictationScreen extends Component<Props> {
         console.log('your device doesnt support touchID');
       });
 
+
+
     AsyncStorage.getItem('phone').then((res) => {
         this.setState({phoneNo: res}) 
         this.props.fetchData(res).then((resdata) => {console.log(this.props.items.notes); this.setState({serverUp: true})})
       })
     this.state.originalCursorLocation = this.state.cursorLocation
-    
+        
+    tracker.trackScreenView("Home");
+
   }
 
 
@@ -187,6 +196,15 @@ class DictationScreen extends Component<Props> {
     }
   }
 
+
+  email(){
+    tracker.trackEvent("testcategory", "testaction");
+    Platform.OS === 'ios'
+      ? Linking.openURL('mailto:libo@stanford.edu?cc=&subject=Export from slot&body='+this.props.navigation.getParam('id', '0')+'&body='+this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]) 
+      : Linking.openURL('mailto:libo@stanford.edu?cc=&subject=yourSubject&body=yourMessage')
+  }
+  
+
   render() {
     return (
     <View style={{flex: 1, width: '100%'}}>
@@ -202,19 +220,7 @@ class DictationScreen extends Component<Props> {
                   <Text style={styles.title}><Text>Slot {this.props.items.notes ? this.props.navigation.getParam('id', '0') : null}</Text></Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={{position: 'absolute', right: 20, top: 20}}
-            onPress={() => Alert.alert(
-                                  'Clear note?',
-                                  'This resets the note to blank and cannot be undone.',
-                                  [
-                                    {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                                    {text: 'OK', onPress: () => this.clear() },
-                                  ]
-                                )}
-          >
-            <Image style={{height: 30, width: 30}}  source={ require('../../assets/delete.png') } />
-          </TouchableOpacity>
+          
         </View> : null }
         { this.state.unlocked ? 
           <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
@@ -234,7 +240,19 @@ class DictationScreen extends Component<Props> {
               />
               
               <Animatable.View animation="slideInUp" duration={300} easing="ease-out" style={{flexDirection: 'row', height: 100}}>
-              
+              <TouchableOpacity 
+                  onPress={() => Alert.alert(
+                                        'Clear note?',
+                                        'This resets the note to blank and cannot be undone.',
+                                        [
+                                          {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                                          {text: 'OK', onPress: () => this.clear() },
+                                        ]
+                                      )}
+                >
+                  <Image style={{height: 30, width: 30, marginRight: 20, marginTop: 40}}  source={ require('../../assets/delete.png') } />
+              </TouchableOpacity>
+
                 {this.state.previousNote ? 
                   <View>
                     <TouchableOpacity
@@ -262,6 +280,14 @@ class DictationScreen extends Component<Props> {
                        onPress={ () => this.keyboardToggle() }
                        activeOpacity={.8}>
                        <Image style={{height: 30, width: 30, marginLeft: 20, marginTop: 40}}  source={ require('../../assets/keyboard.png') } />
+                  </TouchableOpacity>
+                </View>
+                <View>
+                  <TouchableOpacity
+                       onPress={ () => this.email()
+                           }
+                       activeOpacity={.8}>
+                       <Image style={{height: 30, width: 30, marginLeft: 20, marginTop: 40}}  source={ require('../../assets/mail.png') } />
                   </TouchableOpacity>
                 </View>
               </Animatable.View>
