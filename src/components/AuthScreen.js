@@ -38,7 +38,7 @@ class AuthScreen extends React.Component {
           <Animatable.View animation="tada" easing="ease-out">
               <Image style={styles.buttonImage} source={require('../../assets/logo.png')} />
           </Animatable.View>
-          <Text style={[styles.title, {color: 'white'}]}>simple soap</Text>
+          <Text style={[styles.title, {color: 'white'}]}>soap dictate</Text>
           <Text> </Text>
           <Text style={styles.subtitle}>Mobile EMR/EHR Note Dictation</Text>
           <Text> </Text>

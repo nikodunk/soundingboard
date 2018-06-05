@@ -48,7 +48,7 @@
         
         <View style={{height: 100, backgroundColor: '#00d0c9'}}>
           <View style={{flexDirection: 'row'}}>
-            <Text style={styles.sidebarTitle}>simple soap</Text>
+            <Text style={styles.sidebarTitle}>soap dictate</Text>
             <Image style={{height: 60, width: 60}} source={require('../../assets/logo.png')} />
           </View>
           <TouchableOpacity 

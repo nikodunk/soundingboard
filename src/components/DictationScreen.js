@@ -176,10 +176,12 @@ class DictationScreen extends Component<Props> {
       await Voice.stop();
       let patientID = this.props.navigation.getParam('id', '0')
       if (this.state.results[0] === undefined){Alert.alert('No Voice input detected! Please speak louder, get better WiFi, or give your connection more time.')}
-      this.props.items.notes[patientID][1]["note"] = this.state.originalNote.slice(0, this.state.originalCursorStart) + ' ' + this.state.results[0] + ' ' + this.state.originalNote.slice(this.state.originalCursorEnd, this.state.originalNote.length)
-      this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
-          () => this.props.fetchData(this.state.phoneNo)
-        )
+      else {
+        this.props.items.notes[patientID][1]["note"] = this.state.originalNote.slice(0, this.state.originalCursorStart) + ' ' + this.state.results[0] + ' ' + this.state.originalNote.slice(this.state.originalCursorEnd, this.state.originalNote.length)
+        this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"]).then(
+            () => this.props.fetchData(this.state.phoneNo)
+          )
+      }
     } catch (e) {
       console.error(e);
     }
