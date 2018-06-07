@@ -26,7 +26,7 @@ import { fetchData, putData } from '../actions/actions';
 import TouchID from 'react-native-touch-id';
 import { GoogleAnalyticsTracker } from "react-native-google-analytics-bridge";
 let tracker = new GoogleAnalyticsTracker("UA-120230032-1");
-
+YellowBox.ignoreWarnings(['Class RCTCxxModule']);
 
 
 type Props = {};
@@ -67,24 +67,25 @@ class DictationScreen extends Component<Props> {
         // Success code
         TouchID.authenticate('Unlock with your fingerprint').then(success =>
           this.setState({ unlocked: true }),
-        );
-      })
+          );
+        }
+      )
       .catch(error => {
         this.setState({ unlocked: true }),
         this.setState({ enrolledInBiometry: false })
         console.log('your device doesnt support touchID');
-      });
-
-
-
+        }
+      );
     AsyncStorage.getItem('phone').then((res) => {
         this.setState({phoneNo: res}) 
-        this.props.fetchData(res).then((resdata) => {console.log(this.props.items.notes); this.setState({serverUp: true})})
+        this.props.fetchData(res).then((resdata) => {
+            // console.log(this.props.items.notes); 
+            this.setState({serverUp: true})
+          })
       })
     this.state.originalCursorLocation = this.state.cursorLocation
         
     tracker.trackScreenView("Home");
-
   }
 
 
@@ -108,9 +109,8 @@ class DictationScreen extends Component<Props> {
         this.setState({cursorLocation: {end: 0, start: 0} })
         Keyboard.dismiss()
         this.props.putData(this.state.phoneNo, this.props.navigation.getParam('id', '0'), this.props.items.notes[this.props.navigation.getParam('id', '0')][1]["note"])
-          .then(() => this.props.fetchData(this.state.phoneNo))
-          .then(() => this.props.navigation.openDrawer())
-        
+          .then( () => this.props.fetchData(this.state.phoneNo) )
+          .then( () => this.props.navigation.openDrawer() )
   }
 
   changeNote(text){
@@ -240,6 +240,7 @@ class DictationScreen extends Component<Props> {
                 onChangeText={text => this.changeNote(text)}
                 onSelectionChange={(event) => {this.setState({cursorLocation: event.nativeEvent.selection}) }}
               />
+              
               
               <Animatable.View animation="slideInUp" duration={300} easing="ease-out" style={{flexDirection: 'row', height: 100}}>
               <TouchableOpacity 

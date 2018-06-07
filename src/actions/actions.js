@@ -9,12 +9,17 @@ export function fetchData(phone) {
         console.log('fetchData ran', phone)
         axios.get('https://healthnotes.herokuapp.com/1/getnotes/'+ phone )
             .then((items) => {
+                    console.log(items.data.notes)
+                    //for (i in items.data.notes){
+                    //        items.data.notes[i][1]["note"] = items.data.notes[i][1]["note"].split()
+                    // }
                     dispatch(fetchDataSuccess(items.data)); 
                     resolve()
                 })
             // .catch((error) => {AsyncStorage.removeItem('jwt'); console.log(error)});
     })
 }
+
 export function fetchDataSuccess(items) {
     return {
         type: 'ITEMS_FETCH_DATA_SUCCESS',
@@ -42,10 +47,7 @@ export function putData(phoneNo, patientID, note) {
 }
 
 
-
-
 // ---------------------   AUTHENTICATION ACTIONS   --------------------------------------
-
 
 
 // post to https://healthnotes.herokuapp.com/2/auth/9177043031

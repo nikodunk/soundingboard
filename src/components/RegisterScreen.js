@@ -49,6 +49,7 @@ class RegisterScreen extends React.Component {
             <TextInput 
             underlineColorAndroid="transparent"
             style={styles.input}
+            autoFocus={true}
             placeholder={'8523'}
             keyboardType={'numeric'}
             maxLength = {4}
