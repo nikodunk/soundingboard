@@ -16,21 +16,17 @@ export default styles = StyleSheet.create({
       marginTop: 15, 
     },
     hamburger: {
-        height: 16  ,
-        width: 25,
+        height: 20  ,
+        width: 30,
         margin: 10,
-        marginTop: 8
+        marginTop: 6
       },
     title:{
         fontWeight: '900',
         fontSize: 25,
         textAlign: 'center',
-        shadowColor: 'grey',
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.5,
-        shadowRadius: 7,
-        elevation: 5
       },
+      
     textInput:{
       flex: 1,
       borderColor: 'gray', 
@@ -38,18 +34,32 @@ export default styles = StyleSheet.create({
       borderRadius: 5, 
       padding: 5, 
       margin: 5,
-      top: 30,
       fontSize: 20,
-      width: '90%'
+      backgroundColor: 'white'
     },
-    textInputQuarter:{
+    textInputSelected:{
       flex: 1,
-      borderColor: 'gray', 
+      borderColor: '#2191fb', 
       borderWidth: 1, 
       borderRadius: 5, 
       padding: 5, 
       margin: 5,
-      fontSize: 20
+      fontSize: 20,
+      backgroundColor: 'white',
+      shadowColor: '#2191fb',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: .5,
+      shadowRadius: 7,
+    },
+    label:{
+      marginRight: 5,
+      textAlign: 'right'
+    },
+    labelSelected:{
+      marginRight: 5,
+      textAlign: 'right',
+      fontWeight: '900',
+      color: '#2191fb'
     },
     
     // sidebar
@@ -98,7 +108,7 @@ export default styles = StyleSheet.create({
         borderWidth:0,
         alignItems:'center',
         justifyContent:'center',
-        width: 275,
+        width: 250,
         height: 50,
         borderRadius:5,
         backgroundColor:'#2191fb',
@@ -119,6 +129,17 @@ export default styles = StyleSheet.create({
         fontWeight: '900',
         color: 'white'
       },
+      outlineButton: {
+        fontSize: 20,
+        marginTop: 10,
+        borderWidth:1,
+        alignItems:'center',
+        justifyContent:'center',
+        borderRadius:5,
+        borderColor:'#2191fb',
+        padding: 8,
+        color: '#2191fb'
+      },
       flatList:{
         paddingTop: 10
       },
@@ -128,8 +149,8 @@ export default styles = StyleSheet.create({
         height: 60,
       },
       buttonImage:{
-        width: 80,
-        height: 80,
+        width: 70,
+        height: 70,
 
       },
       text: {
@@ -138,9 +159,9 @@ export default styles = StyleSheet.create({
       
 
       buttonImageContainer: {
-        shadowColor: 'dodgerblue',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 1,
+        shadowColor: 'black',
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: .5,
         shadowRadius: 5,
         elevation: 5,
         marginTop: 10
@@ -148,9 +169,9 @@ export default styles = StyleSheet.create({
       },
 
       buttonImageContainerRecording: {
-        shadowColor: 'red',
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: .8,
+        shadowColor: 'black',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: .5,
         shadowRadius: 5,
         elevation: 8,
         marginTop: 10

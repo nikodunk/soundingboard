@@ -4,19 +4,19 @@ import axios from 'axios';
 
 
 // get to https://healthnotes.herokuapp.com/1/getnotes/9177043031/
-export function fetchData(phone) {
+export function fetchData(patientID) {
     return dispatch => new Promise((resolve, reject) => {
         console.log('fetchData ran', phone)
-        axios.get('https://healthnotes.herokuapp.com/1/getnotes/'+ phone )
-            .then((items) => {
-                    console.log(items.data.notes)
-                    //for (i in items.data.notes){
-                    //        items.data.notes[i][1]["note"] = items.data.notes[i][1]["note"].split()
+        
+        AsyncStorage.getItem(patientID).then((items) => {
+            // console.log(items.data.notes)
+                    // for (i in items.data.notes){
+                    //        items.data.notes[i][1]["note"] = items.data.notes[i][1]["note"].split('#')
+                    //        console.log(i + items.data.notes[i][1]["note"])
                     // }
                     dispatch(fetchDataSuccess(items.data)); 
                     resolve()
-                })
-            // .catch((error) => {AsyncStorage.removeItem('jwt'); console.log(error)});
+          })
     })
 }
 
@@ -29,62 +29,12 @@ export function fetchDataSuccess(items) {
 
 
 // post to https://healthnotes.herokuapp.com/1/addnote/:phoneNo/:patientID/:note
-export function putData(phoneNo, patientID, note) {
+export function putData(phoneNo, patientID, note0, note1, note2, note3) {
     return dispatch => new Promise((resolve, reject) => {
-        console.log('putData ran with: https://healthnotes.herokuapp.com/1/addnote/' + phoneNo + '/' + patientID + '/' + note)
-        axios.post('https://healthnotes.herokuapp.com/1/addnote/' + phoneNo + '/' + patientID + '/' + note, { 
-            method: 'POST',
-            headers: {
-                'mode': 'no-cors',
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-            }
-          )
-        .then((response) => {console.log(response.data); resolve()})
-        .catch((error) => console.log(error));
+        // console.log('putData ran with: https://healthnotes.herokuapp.com/1/addnote/' + phoneNo + '/' + patientID + '/' + note0 + '#' + note1 + '#' + note2 + '#' + note3)
+        AsyncStorage.setItem(patientID, note0.toString() + '#' + note1.toString() + '#' + note2.toString() + '#' + note3.toString() );
+            // .then((response) => {console.log(response.data); resolve()})
+            // .catch((error) => console.log(error));
     });
-}
-
-
-// ---------------------   AUTHENTICATION ACTIONS   --------------------------------------
-
-
-// post to https://healthnotes.herokuapp.com/2/auth/9177043031
-export function sendPhoneNumber(phone){
-    return dispatch => new Promise((resolve, reject) => {
-    axios.post('https://healthnotes.herokuapp.com/2/auth/'+ phone)
-            .then((response) => {
-                resolve(response.data)
-                })
-        })
-}
-
-
-// post to https://healthnotes.herokuapp.com/2/login/9177043031/8523
-export function sendPIN(PIN, phoneNo) {
-    return dispatch => new Promise((resolve, reject) => {        
-        console.log('https://healthnotes.herokuapp.com/2/login/'+ phoneNo +'/'+ PIN)
-        // AsyncStorage.setItem('jwt', 'token' ); resolve() // UNCOMMENT FOR OFFLINE MODE
-        axios.post('https://healthnotes.herokuapp.com/2/login/'+  phoneNo +'/'+ PIN)
-            .then((response) => {
-                    if (response.data == false){ console.log('wrong'); resolve()}
-                    else { AsyncStorage.setItem('jwt', 'token' ); }
-                })
-            .then(() =>  resolve() )         
-    })
-}
-
-
-// post to https://healthnotes.herokuapp.com/2/register/9177043031/8523
-export function register(phoneNo, PIN) {
-    return dispatch => new Promise((resolve, reject) => {        
-        console.log('https://healthnotes.herokuapp.com/2/register/'+ phoneNo +'/'+ PIN )
-        axios.post('https://healthnotes.herokuapp.com/2/register/'+  phoneNo +'/'+ PIN )
-            .then((response) => {
-                    if (response.data.command === 'UPDATE'){ AsyncStorage.setItem('jwt', 'token' ); resolve() }
-                    else{ console.log('register didnt work with status:' + response.data); resolve()}
-                })         
-    })
 }
 

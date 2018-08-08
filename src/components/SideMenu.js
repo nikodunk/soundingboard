@@ -7,12 +7,12 @@
  import PropTypes from 'prop-types';
  import React, {PureComponent} from 'react';
  import {NavigationActions} from 'react-navigation';
- import {ScrollView, Text, View, TouchableOpacity, AsyncStorage, Image} from 'react-native';
+ import {ScrollView, Text, View, TouchableOpacity, AsyncStorage, Image, Platform, Linking} from 'react-native';
  import styles from './_styles'
  import { connect } from 'react-redux';
  import DictationScreen from './DictationScreen'
  import { DrawerActions } from 'react-navigation';
-
+import * as Animatable from 'react-native-animatable';
 
  class SideMenu extends PureComponent {
 
@@ -26,40 +26,69 @@
   render () {
     return (
       <View style={{flex: 1, marginTop: 50}}>        
-      <ScrollView
-      contentContainerStyle={{ flex: 1, flexDirection: 'column'}}
-      >
+        <ScrollView contentContainerStyle={{ flex: 1, flexDirection: 'column'}}>
       
-      {this.props.items.notes ? Object.keys(this.props.items.notes).map((id) =>
-        <View key={id}>
-        <TouchableOpacity 
-        style={{paddingLeft: 20, paddingBottom: 20}}
-        onPress={() => {
-          this.props.navigation.dispatch(DrawerActions.closeDrawer())
-          this.props.navigation.navigate('DictationScreen', {id: id})
-        }}>
-        <Text style={styles.sidebarText}>Slot {this.props.items.notes[id] ? this.props.items.notes[id][0]['id'] : null}</Text>
-        
-        </TouchableOpacity>
-        <View style={styles.separator} />
-        </View>
-        ) : null }
-        </ScrollView>
-        
-        <View style={{height: 100, backgroundColor: '#00d0c9'}}>
-          <View style={{flexDirection: 'row'}}>
-            <Text style={styles.sidebarTitle}>soap dictate</Text>
-            <Image style={{height: 60, width: 60}} source={require('../../assets/logo.png')} />
+          <View>
+              <TouchableOpacity 
+              style={{paddingLeft: 20, paddingBottom: 20}}
+              onPress={() => {
+                this.props.navigation.dispatch(DrawerActions.closeDrawer())
+                this.props.navigation.navigate('DictationScreen', {id: '0'})
+              }}>
+              <Text style={styles.sidebarText}>Slot 0</Text>
+              
+              </TouchableOpacity>
+              <View style={styles.separator} />
           </View>
-          <TouchableOpacity 
-          style={{paddingLeft: 10,  position: 'absolute', bottom: 20}}
-          onPress={this._signOutAsync} >
-            <Text>
-            Logout
-            </Text>
-          </TouchableOpacity> 
-        </View>
+
+          <View>
+              <TouchableOpacity 
+              style={{paddingLeft: 20, paddingBottom: 20}}
+              onPress={() => {
+                this.props.navigation.dispatch(DrawerActions.closeDrawer())
+                this.props.navigation.navigate('DictationScreen', {id: '1'})
+              }}>
+              <Text style={styles.sidebarText}>Slot 1</Text>
+              
+              </TouchableOpacity>
+              <View style={styles.separator} />
+          </View>
+
+          <View>
+              <TouchableOpacity 
+              style={{paddingLeft: 20, paddingBottom: 20}}
+              onPress={() => {
+                this.props.navigation.dispatch(DrawerActions.closeDrawer())
+                this.props.navigation.navigate('DictationScreen', {id: '2'})
+              }}>
+              <Text style={styles.sidebarText}>Slot 2</Text>
+              
+              </TouchableOpacity>
+              <View style={styles.separator} />
+          </View>
         
+        </ScrollView>
+
+        <View style={{flex: 1}}>
+          <TouchableOpacity style={{paddingLeft: 5, paddingBottom: 5, position: 'absolute', bottom: 10, marginLeft: 5}}
+                    onPress={() => {
+                    this.props.navigation.navigate('DrawerClose')
+                    this.props.navigation.navigate('Settings')
+                  }}>
+              <Text style={[styles.sidebarText, styles.outlineButton]}>Settings</Text>
+              
+          </TouchableOpacity>
+        </View>
+
+
+       
+          <Animatable.View animation="slideInUp" duration={300} easing="ease-out" style={{height: 100, backgroundColor: '#2191fb'}}>
+              <View style={{flexDirection: 'row', marginTop: 5}}>
+                <Text style={styles.sidebarTitle}>soap dictate</Text>
+                <Image style={{height: 60, width: 60}} source={require('../../assets/logo.png')} />
+              </View>
+          </Animatable.View>
+          
         </View>
         );
       }
