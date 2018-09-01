@@ -16,6 +16,21 @@ import * as Animatable from 'react-native-animatable';
 
  class SideMenu extends PureComponent {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      
+    };
+  }
+
+  componentDidMount() {
+          this.setState({loading: true})
+          AsyncStorage.getItem('email').then((res) => {
+              this.setState({email: res});
+              this.setState({loading: false})
+                  })
+      }
+  
 
   _signOutAsync = async () => {
     await AsyncStorage.clear();
@@ -86,7 +101,9 @@ import * as Animatable from 'react-native-animatable';
               <View style={{flexDirection: 'row', marginTop: 5}}>
                 <Text style={styles.sidebarTitle}>soap dictate</Text>
                 <Image style={{height: 60, width: 60}} source={require('../../assets/logo.png')} />
+
               </View>
+              <Text style={{color: 'white', paddingLeft: 5}}>{this.state.email}</Text>
           </Animatable.View>
           
         </View>

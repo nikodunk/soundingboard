@@ -27,7 +27,6 @@ import { fetchData, putData } from '../actions/actions';
 import TouchID from 'react-native-touch-id';
 import { GoogleAnalyticsTracker } from "react-native-google-analytics-bridge";
 let tracker = new GoogleAnalyticsTracker("UA-120230032-1");
-YellowBox.ignoreWarnings(['Class RCTCxxModule']);
 
 
 type Props = {};
@@ -39,7 +38,6 @@ class DictationScreen extends Component<Props> {
           recognized: '',
           pitch: '',
           results: [],
-          activeField: 0,
           partialResults: [],
           recording: false,
           cursorLocation: null,
@@ -55,12 +53,11 @@ class DictationScreen extends Component<Props> {
           unlocked: true,
           enrolledInBiometry: true,
           keyboardUp: false,
-          notes: [[' ', ' ', ' ', ' '], [' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ']]
+          notes: [' ', ' ', ' ']
         };
         Voice.onSpeechResults = this.onSpeechResults.bind(this);
         Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
         this.timeout =  0;
-        YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
   }
 
   componentDidMount() {
@@ -94,13 +91,17 @@ class DictationScreen extends Component<Props> {
       Keyboard.dismiss()
       this.setState({recording: true}) 
       console.log('start recording')
-      this._startRecognizing(); 
+      this._startRecognizing();
+      setTimeout(() => { 
+          this.setState({recording: false })
+          console.log('stop recording')
+          this._stopRecognizing()
+       }, 60000);
      }
     else{
       this.setState({recording: false })
       console.log('stop recording')
       this._stopRecognizing()
-      
      }
   }
 
@@ -117,7 +118,7 @@ class DictationScreen extends Component<Props> {
     if(this.timeout) clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
       var newNote = this.state.notes
-      newNote[patientID][this.state.activeField] = text;
+      newNote[patientID] = text;
       this.setState({notes: newNote})
       this._storeNotes()
     }, 500);
@@ -127,7 +128,7 @@ class DictationScreen extends Component<Props> {
   undo() {
     let patientID = this.props.navigation.getParam('id', '0')
     let newNote = this.state.notes
-    newNote[patientID][this.state.activeField] = this.state.previousNote
+    newNote[patientID] = this.state.previousNote
     this.setState({notes: newNote})
     this._storeNotes()
   }
@@ -135,12 +136,12 @@ class DictationScreen extends Component<Props> {
   clear() {
     let patientID = this.props.navigation.getParam('id', '0')
     let newNote = this.state.notes
-    newNote[patientID] = [' ', ' ', ' ', ' ']
+    newNote[patientID] = ''
     this.setState({notes: newNote})
     this._storeNotes()
   }
 
-  async _startRecognizing(e) {
+  _startRecognizing(e) {
     this.setState({
       recognized: '',
       pitch: '',
@@ -151,15 +152,13 @@ class DictationScreen extends Component<Props> {
       end: ''
     });
     let patientID = this.props.navigation.getParam('id', '0')
-    this.setState({previousNote: this.state.notes[patientID][this.state.activeField] })
-    this.setState({originalNote: this.state.notes[patientID][this.state.activeField] })
+    this.setState({previousNote: this.state.notes[patientID] })
+    this.setState({originalNote: this.state.notes[patientID] })
     this.setState({originalCursorStart: this.state.cursorLocation['start']})
     this.setState({originalCursorEnd: this.state.cursorLocation['end']})
-    try {
-      await Voice.start('en-US');
-    } catch (e) {
-      console.error(e);
-    }
+
+    Voice.start('en-US');
+ 
   }
 
   onSpeechPartialResults(e) {
@@ -168,23 +167,18 @@ class DictationScreen extends Component<Props> {
     });
     let patientID = this.props.navigation.getParam('id', '0')
     let newNote = this.state.notes
-    newNote[patientID][this.state.activeField] = this.state.originalNote.slice(0, this.state.originalCursorStart) + ' ' + this.state.results[0] + ' ' + this.state.originalNote.slice(this.state.originalCursorEnd, this.state.originalNote.length)
+    newNote[patientID] = this.state.originalNote.slice(0, this.state.originalCursorStart) + ' ' + this.state.results[0] + ' ' + this.state.originalNote.slice(this.state.originalCursorEnd, this.state.originalNote.length)
   }
 
-  async _stopRecognizing(e) {
-    let patientID = this.props.navigation.getParam('id', '0')
-    try {
-      await Voice.stop();
+  _stopRecognizing(e) {
+      Voice.stop();
       let patientID = this.props.navigation.getParam('id', '0')
       if (this.state.results[0] === undefined){Alert.alert('Sorry, what now?! No Voice input detected! Please speak louder, get better WiFi, or give your connection more time.')}
       else {
         let newNote = this.state.notes
-        newNote[patientID][this.state.activeField] = this.state.originalNote.slice(0, this.state.originalCursorStart) + ' ' + this.state.results[0] + ' ' + this.state.originalNote.slice(this.state.originalCursorEnd, this.state.originalNote.length)
+        newNote[patientID] = this.state.originalNote.slice(0, this.state.originalCursorStart) + ' ' + this.state.results[0] + ' ' + this.state.originalNote.slice(this.state.originalCursorEnd, this.state.originalNote.length)
         this._storeNotes()
       }
-    } catch (e) {
-      console.error(e);
-    }
   }
 
   keyboardToggle(){
@@ -193,7 +187,6 @@ class DictationScreen extends Component<Props> {
           this.setState({keyboardUp: false})
         }
     else{
-      this.myTextInput.focus() 
       this.setState({keyboardUp: true})
     }
   }
@@ -212,6 +205,7 @@ class DictationScreen extends Component<Props> {
     AsyncStorage.getItem('notes').then((res) => {
         if (res != null) {
           let newNote = JSON.parse(res)
+          
           this.setState({notes: newNote})
         }
       })
@@ -245,87 +239,19 @@ class DictationScreen extends Component<Props> {
 
             <View style={{flex: 1, flexDirection: 'row'}}>
               <View style={{flex: 1}}>
-                <TouchableOpacity onPress={() => {this.setState({ activeField: 0})}}>
-                  <Text style={this.state.activeField === 0 ? styles.labelSelected : styles.label} 
-                    >Subjective
-                  </Text>
-                </TouchableOpacity>
                 <TextInput
                   placeholder = "Start recording or typing"
-                  ref={(input) => { this.myTextInput = input; }}
                   selectable={true}
                   underlineColorAndroid="transparent"
-                  style={this.state.activeField === 0 ? styles.textInputSelected : styles.textInput}
-                  value={this.state.notes[this.props.navigation.getParam('id', '0')][0]}
+                  style={styles.textInput}
+                  value={this.state.notes[this.props.navigation.getParam('id', '0')]}
                   multiline={true}
-                  onFocus={() => {this.setState({keyboardUp: true, activeField: 0})}}
                   onChangeText={text => this.changeNote(text)}
                   onSelectionChange={(event) => {this.setState({cursorLocation: event.nativeEvent.selection}) }}
                 />
               </View>
             </View>
 
-            <View style={{flex: 1, flexDirection: 'row'}}>
-              <View style={{flex: 1}}>
-                <TouchableOpacity onPress={() => {this.setState({ activeField: 1})}}>
-                  <Text style={this.state.activeField === 1 ? styles.labelSelected : styles.label} 
-                    >Objective
-                  </Text>
-                </TouchableOpacity>
-                <TextInput
-                  placeholder = "Start recording or typing"
-                  ref={(input) => { this.myTextInput = input; }}
-                  selectable={true}
-                  underlineColorAndroid="transparent"
-                  style={this.state.activeField === 1 ? styles.textInputSelected : styles.textInput}
-                  value={this.state.notes[this.props.navigation.getParam('id', '0')][1]}
-                  multiline={true}
-                  onFocus={() => {this.setState({keyboardUp: true, activeField: 1})}}
-                  onChangeText={text => this.changeNote(text)}
-                  onSelectionChange={(event) => {this.setState({cursorLocation: event.nativeEvent.selection}) }}
-                />
-              </View>
-
-              <View style={{flex: 1}}>
-                <TouchableOpacity onPress={() => {this.setState({ activeField: 2})}}>
-                  <Text style={this.state.activeField === 2 ? styles.labelSelected : styles.label} 
-                    >Assessment
-                  </Text>
-                </TouchableOpacity>
-                <TextInput
-                  placeholder = "Start recording or typing"
-                  ref={(input) => { this.myTextInput = input; }}
-                  selectable={true}
-                  underlineColorAndroid="transparent"
-                  style={this.state.activeField === 2 ? styles.textInputSelected : styles.textInput}
-                  value={this.state.notes[this.props.navigation.getParam('id', '0')][2]}
-                  multiline={true}
-                  onFocus={() => {this.setState({keyboardUp: true, activeField: 2})}}
-                  onChangeText={text => this.changeNote(text)}
-                  onSelectionChange={(event) => {this.setState({cursorLocation: event.nativeEvent.selection}) }}
-                />
-              </View>
-
-              <View style={{flex: 1}}>
-                <TouchableOpacity onPress={() => {this.setState({ activeField: 3})}}>
-                  <Text style={this.state.activeField === 3 ? styles.labelSelected : styles.label} 
-                    >Plan
-                  </Text>
-                </TouchableOpacity>
-                <TextInput
-                  placeholder = "Start recording or typing"
-                  ref={(input) => { this.myTextInput = input; }}
-                  selectable={true}
-                  underlineColorAndroid="transparent"
-                  style={this.state.activeField === 3 ? styles.textInputSelected : styles.textInput} 
-                  value={this.state.notes[this.props.navigation.getParam('id', '0')][3]}
-                  multiline={true}
-                  onFocus={() => {this.setState({keyboardUp: true, activeField: 3})}}
-                  onChangeText={text => this.changeNote(text)}
-                  onSelectionChange={(event) => {this.setState({cursorLocation: event.nativeEvent.selection}) }}
-                />
-              </View>
-            </View>
               
               
               <Animatable.View animation="slideInLeft" duration={400} easing="ease-out" style={{flexDirection: 'row', height: 100}}>
@@ -353,18 +279,14 @@ class DictationScreen extends Component<Props> {
                 <View>
                        <Image style={{height: 30, width: 30, marginRight: 20, marginTop: 40, opacity: .2}}  source={ require('../../assets/undo.png') } />
                 </View> }
-
-
                 
-                  <View style={!this.state.recording ? styles.buttonImageContainer : styles.buttonImageContainerRecording}> 
-                    <TouchableOpacity
-                         onPress={  () => {this.toggleRecognizing();} }
-                         activeOpacity={.8}>
-                         <Image style={styles.buttonImage} ref={this.handleImageRef} source={!this.state.recording ? require('../../assets/button.png') : require('../../assets/buttonRecording.png')} />
-                    </TouchableOpacity>
-                  </View>
-                
-                
+                <View style={!this.state.recording ? styles.buttonImageContainer : styles.buttonImageContainerRecording}> 
+                  <TouchableOpacity
+                       onPress={  () => {this.toggleRecognizing();} }
+                       activeOpacity={.8}>
+                       <Image style={styles.buttonImage} ref={this.handleImageRef} source={!this.state.recording ? require('../../assets/button.png') : require('../../assets/buttonRecording.png')} />
+                  </TouchableOpacity>
+                </View>
               
                 <View>
                   <TouchableOpacity

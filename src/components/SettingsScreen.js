@@ -25,19 +25,17 @@ class SettingsScreen extends React.Component {
         super(props);
         this.state = {
           usergroup: '',
-          phoneNo: ''
+          email: ''
         };
       }
       
       componentDidMount() {
-          AsyncStorage.getItem('usergroup').then((res) => {
-              this.setState({usergroup: res});
-                  })
-          AsyncStorage.getItem('phone').then((res) => {
-              this.setState({phoneNo: res}) 
-                  })
-
+          AsyncStorage.getItem('email').then((res) => {
+            email = res
+            this.setState({email: email})
+          })
       }
+
 
       _setEmail(){
           console.log(this.state.email)
@@ -77,8 +75,9 @@ class SettingsScreen extends React.Component {
                             <TextInput 
                               underlineColorAndroid="transparent"
                               style={styles.input}
-                              placeholder={'zoidberg@hospital.com'}
+                              placeholder={this.state.email}
                               autoCorrect={false}
+                              keyboardType={'email-address'}
                               autoCapitalize={'none'}
                               onChangeText={(text) => {  this.setState({'email': text}) }} 
                             />
