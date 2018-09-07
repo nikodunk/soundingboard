@@ -20,8 +20,18 @@ class AuthScreen extends React.Component {
 
   _onPress = async (email) => {
     this.setState({loading: true})
-    console.log(email)
-      AsyncStorage.setItem('email', email )
+    fetch('https://healthnotes.herokuapp.com/email/', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email
+        }),
+    })
+    .then(() => AsyncStorage.setItem('email', email ))
+    .then(() => this.props.navigation.navigate('SignedInRouter'))
   };
 
 
@@ -33,15 +43,11 @@ class AuthScreen extends React.Component {
         <View style={styles.loginBox}><ActivityIndicator color="black" /></View> 
         : 
         <View style={styles.loginBox}>
+          <Text> </Text>
           <Animatable.View animation="tada" easing="ease-out">
-              <Image style={[styles.buttonImage, {marginLeft: 30}]} source={require('../../assets/logo.png')} />
+              <Image style={[styles.buttonImage, {marginLeft: 40}]} source={require('../../assets/logo.png')} />
               <Text style={[styles.title]}>soap dictate</Text>
           </Animatable.View>
-          
-          <Text> </Text>
-          <Text style={styles.subtitle}>Mobile EMR/EHR Note Dictation</Text>
-          <Text> </Text>
-          <Text> </Text>
           <TextInput 
           underlineColorAndroid="transparent"
           style={styles.input}
@@ -58,7 +64,7 @@ class AuthScreen extends React.Component {
               Continue
               </Text>
           </TouchableOpacity> 
-          <Text> </Text>
+          <Text>By using this software you agree to receiving the occasional feedback or marketing email to help us improve the product for you.</Text>
           <Text style={styles.title}> </Text>
         </View>
       }

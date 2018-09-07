@@ -15,7 +15,8 @@ import {
   AsyncStorage,
   YellowBox,
   Linking,
-  ImageBackground
+  ImageBackground,
+  Vibration
 } from 'react-native';
 
 import Voice from 'react-native-voice';
@@ -27,6 +28,12 @@ import { fetchData, putData } from '../actions/actions';
 import TouchID from 'react-native-touch-id';
 import { GoogleAnalyticsTracker } from "react-native-google-analytics-bridge";
 let tracker = new GoogleAnalyticsTracker("UA-120230032-1");
+
+
+// import Sound from 'react-native-sound';
+
+// Sound.setCategory('Playback');
+
 
 
 type Props = {};
@@ -53,14 +60,23 @@ class DictationScreen extends Component<Props> {
           unlocked: true,
           enrolledInBiometry: true,
           keyboardUp: false,
-          notes: [' ', ' ', ' ']
+          notes: [ 'SUBJECTIVE \n• Chief Complaint: \n• History of present illness: \n• Social History: \n\nOBJECTIVE \n• Review of Systems:\n• Findings:\n• Lab Results:\n\nASSESSMENT\n• Summary:\n\nPLAN\n• Summary:\n',
+                   'SUBJECTIVE \n• Chief Complaint: \n• History of present illness: \n• Social History: \n\nOBJECTIVE \n• Review of Systems:\n• Findings:\n• Lab Results:\n\nASSESSMENT\n• Summary:\n\nPLAN\n• Summary:\n',
+                   'SUBJECTIVE \n• Chief Complaint: \n• History of present illness: \n• Social History: \n\nOBJECTIVE \n• Review of Systems:\n• Findings:\n• Lab Results:\n\nASSESSMENT\n• Summary:\n\nPLAN\n• Summary:\n'
+                  ]
         };
         Voice.onSpeechResults = this.onSpeechResults.bind(this);
         Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this);
         this.timeout =  0;
   }
 
+
+
+
+
+
   componentDidMount() {
+
     // TouchID.isSupported()
     //   .then(biometryType => {
     //     // Success code
@@ -136,12 +152,20 @@ class DictationScreen extends Component<Props> {
   clear() {
     let patientID = this.props.navigation.getParam('id', '0')
     let newNote = this.state.notes
-    newNote[patientID] = ''
+    newNote[patientID] = 'SUBJECTIVE \n• Chief Complaint: \n• History of present illness: \n• Social History: \n\nOBJECTIVE \n• Review of Systems:\n• Findings:\n• Lab Results:\n\nASSESSMENT\n• Summary:\n\nPLAN\n• Summary:\n'
     this.setState({notes: newNote})
     this._storeNotes()
   }
 
   _startRecognizing(e) {
+    // Vibration.vibrate()
+    // let sound = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
+    //               if (error) {
+    //                   console.log('failed to load the sound', error);
+    //               } else {
+    //                   sound.play(); // have to put the call to play() in the onload callback
+    //               }
+    //           });
     this.setState({
       recognized: '',
       pitch: '',
@@ -156,9 +180,7 @@ class DictationScreen extends Component<Props> {
     this.setState({originalNote: this.state.notes[patientID] })
     this.setState({originalCursorStart: this.state.cursorLocation['start']})
     this.setState({originalCursorEnd: this.state.cursorLocation['end']})
-
     Voice.start('en-US');
- 
   }
 
   onSpeechPartialResults(e) {
@@ -171,7 +193,16 @@ class DictationScreen extends Component<Props> {
   }
 
   _stopRecognizing(e) {
+      // Vibration.vibrate();
+      // let sound = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
+      //             if (error) {
+      //                 console.log('failed to load the sound', error);
+      //             } else {
+      //                 sound.play(); // have to put the call to play() in the onload callback
+      //             }
+      //         });
       Voice.stop();
+      
       let patientID = this.props.navigation.getParam('id', '0')
       if (this.state.results[0] === undefined){Alert.alert('Sorry, what now?! No Voice input detected! Please speak louder, get better WiFi, or give your connection more time.')}
       else {
@@ -187,6 +218,7 @@ class DictationScreen extends Component<Props> {
           this.setState({keyboardUp: false})
         }
     else{
+      this.secondTextInput.focus();
       this.setState({keyboardUp: true})
     }
   }
@@ -246,6 +278,7 @@ class DictationScreen extends Component<Props> {
                   style={styles.textInput}
                   value={this.state.notes[this.props.navigation.getParam('id', '0')]}
                   multiline={true}
+                  ref={(input) => { this.secondTextInput = input; }}
                   onChangeText={text => this.changeNote(text)}
                   onSelectionChange={(event) => {this.setState({cursorLocation: event.nativeEvent.selection}) }}
                 />

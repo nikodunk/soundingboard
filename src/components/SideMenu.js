@@ -1,9 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
  import PropTypes from 'prop-types';
  import React, {PureComponent} from 'react';
  import {NavigationActions} from 'react-navigation';
@@ -28,7 +22,17 @@ import * as Animatable from 'react-native-animatable';
           AsyncStorage.getItem('email').then((res) => {
               this.setState({email: res});
               this.setState({loading: false})
-                  })
+              fetch('https://healthnotes.herokuapp.com/email/', {
+                  method: 'POST',
+                  headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    email: res
+                  }),
+              }).then(() => console.log('email saved to server'))
+          })
       }
   
 

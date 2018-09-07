@@ -3,6 +3,8 @@ package com.ehrmobile;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.zmxv.RNSound.RNSoundPackage;
 import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
 import com.rnfingerprint.FingerprintAuthPackage;
 import com.wenkesj.voice.VoicePackage;
@@ -26,6 +28,8 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new VectorIconsPackage(),
+            new RNSoundPackage(),
             new GoogleAnalyticsBridgePackage(),
             new FingerprintAuthPackage(),
             new VoicePackage()
