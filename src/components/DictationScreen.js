@@ -74,6 +74,39 @@ async _startRecognition(e) {
     }
   }
 
+async _stopRecognition(e) {
+    blip.play()
+    try {
+      await Voice.start('en-US');
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+
+
+toggleRecognizing() {
+    // Vibration.vibrate();
+    // ReactNativeHapticFeedback.trigger('impactLight', true);
+    ReactNativeHapticFeedback.trigger('impactLight', true);
+    
+    if (this.state.started === '√') { 
+      Keyboard.dismiss()
+      this._startRecognizing();
+      setTimeout(() => { 
+          this.setState({recording: false })
+          console.log('stop recording')
+          this._stopRecognizing()
+       }, 60000);
+     }
+    else{
+      this.setState({recording: false })
+      console.log('stop recording')
+      this._stopRecognizing()
+     }
+  }
+
+
 render () {
     return (
       <View>
