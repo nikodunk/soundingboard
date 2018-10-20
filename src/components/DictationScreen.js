@@ -10,6 +10,20 @@ import {
 
 import Voice from 'react-native-voice';
 
+import Sound from 'react-native-sound';
+
+Sound.setCategory('Playback');
+
+let blip = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
+              if (error) {
+                  console.log('failed to load the sound', error);
+              } else {
+                  // blip.play(); // have to put the call to play() in the onload callback
+              }
+          });
+
+
+
 export default class VoiceNative extends React.Component {
   constructor(props) {
     super(props);
