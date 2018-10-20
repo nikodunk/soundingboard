@@ -6,6 +6,9 @@ import {
   View,
   Button,
   AppRegistry,
+  AsyncStorage,
+  Linking,
+  Platform
 } from 'react-native';
 
 import Voice from 'react-native-voice';
@@ -20,7 +23,7 @@ var blip = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
     return;
   }
   // loaded successfully
-  blip.play()
+  // blip.play()
   blip.setVolume(10)
   console.log('Volume: ' + blip.getVolume() + ' number of channels: ' + blip.getNumberOfChannels());
 });
@@ -113,6 +116,15 @@ _toggleRecognizing(e) {
      }
   }
 
+email(){
+  AsyncStorage.getItem('email').then((email) => {
+    // tracker.trackEvent("buttonexport", "exported email");
+    Platform.OS === 'ios'
+      ? Linking.openURL('mailto:'+email+' ?cc=&subject=Export from Soapdictate &body='+this.state.results[0]) 
+      : Linking.openURL('mailto:'+email+' ?cc=&subject=yourSubject&body=yourMessage')
+  })
+}
+
 
 render () {
     return (
@@ -123,13 +135,19 @@ render () {
         )}
         </Text>
         
-        <Button style={styles.button}
-        onPress={this._toggleRecognizing.bind(this)}
-        title={(this.state.recording === 'no' ? "Dictate" : "Stop")} ></Button>
+        <View style={styles.button}>
+          <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-around' }}>
+            
+            <Button
+            onPress={this._toggleRecognizing.bind(this)}
+            title={(this.state.recording === 'no' ? "Dictate" : "Stop")} ></Button>
 
-        <Button style={styles.button}
-        onPress={this._toggleRecognizing.bind(this)}
-        title={(this.state.recording === 'no' ? "Start" : "Stop")} ></Button>
+            <Button 
+            onPress={this.email.bind(this)}
+            title={"Email"} ></Button>
+
+          </View>
+        </View>
       
       </View>
     );
@@ -140,15 +158,14 @@ const styles = StyleSheet.create({
   container: {
     height: '100%',
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
+    flexDirection: 'column'
   },
   transcript: {
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 40,
   },
   button: {
-    textAlign: 'center',
+    width: '100%',
     position: 'absolute',
     bottom: 0,
   },
