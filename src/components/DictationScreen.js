@@ -82,6 +82,7 @@ async _startRecognition(e) {
 async _stopRecognition(e) {
     try {
       await Voice.stop();
+      AsyncStorage.setItem('notes', JSON.stringify(this.state.results[0]))
     } catch (e) {
       console.error(e);
     }
@@ -128,9 +129,13 @@ render () {
     return (
       <View style={styles.container}>
         <Text style={styles.transcript}>
-            Transcript{"\n"}
-            {this.state.results.map((result, index) => <Text style={styles.transcript} key={index}> {result}</Text>
-        )}
+            Transcript
+        </Text>
+        <Text style={style={textAlign: 'center'}}>
+            {AsyncStorage.getItem('notes').then((notes) => <Text style={styles.transcript} > {notes}</Text>)}
+        </Text>
+        <Text style={style={textAlign: 'center'}}>
+            {this.state.results.map((result, index) => <Text style={styles.transcript} key={index}> {result}</Text>)}
         </Text>
         
         <View style={styles.button}>
