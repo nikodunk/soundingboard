@@ -77,7 +77,7 @@ async _startRecognition(e) {
 async _stopRecognition(e) {
     blip.play()
     try {
-      await Voice.start('en-US');
+      await Voice.stop();
     } catch (e) {
       console.error(e);
     }
