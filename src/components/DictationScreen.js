@@ -22,9 +22,7 @@ var blip = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
     console.log('failed to load the sound', error);
     return;
   }
-  // loaded successfully
-  // blip.play()
-  blip.setVolume(10)
+  blip.setVolume(6)
   console.log('Volume: ' + blip.getVolume() + ' number of channels: ' + blip.getNumberOfChannels());
 });
 
