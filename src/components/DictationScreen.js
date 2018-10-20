@@ -61,6 +61,7 @@ onSpeechResults(e) {
   }
 
 async _startRecognition(e) {
+    blip.play()
     this.setState({
       recognized: '',
       started: '',
