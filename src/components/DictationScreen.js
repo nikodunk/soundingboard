@@ -32,7 +32,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import Sound from 'react-native-sound';
 
-Sound.setCategory('Playback');
+Sound.setCategory('MultiRoute');
 
 let blip = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
               if (error) {
@@ -113,7 +113,7 @@ class DictationScreen extends Component<Props> {
   toggleRecognizing() {
     // Vibration.vibrate();
     // ReactNativeHapticFeedback.trigger('impactLight', true);
-    ReactNativeHapticFeedback.trigger('impactLight', true);
+    // ReactNativeHapticFeedback.trigger('impactLight', true);
     
     if (this.state.recording === false) { 
       Keyboard.dismiss()
