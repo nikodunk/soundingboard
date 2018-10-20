@@ -81,28 +81,24 @@ async _stopRecognition(e) {
     } catch (e) {
       console.error(e);
     }
+    this.setState({started: ''})
   }
 
 
 
-toggleRecognizing() {
+_toggleRecognizing(e) {
     // Vibration.vibrate();
     // ReactNativeHapticFeedback.trigger('impactLight', true);
-    ReactNativeHapticFeedback.trigger('impactLight', true);
+    // ReactNativeHapticFeedback.trigger('impactLight', true);
     
-    if (this.state.started === '√') { 
-      Keyboard.dismiss()
-      this._startRecognizing();
+    if (this.state.started === '') { 
+      this._startRecognition(e);
       setTimeout(() => { 
-          this.setState({recording: false })
-          console.log('stop recording')
-          this._stopRecognizing()
-       }, 60000);
+          if (this.state.started === '√'){this._stopRecognition(e)}
+       }, 5000);
      }
     else{
-      this.setState({recording: false })
-      console.log('stop recording')
-      this._stopRecognizing()
+      this._stopRecognition(e)
      }
   }
 
@@ -116,8 +112,8 @@ render () {
         {this.state.results.map((result, index) => <Text style={styles.transcript}> {result}</Text>
         )}
         <Button style={styles.transcript}
-        onPress={this._startRecognition.bind(this)}
-        title="Start"></Button>
+        onPress={this._toggleRecognizing.bind(this)}
+        title={(this.state.started === '' ? "Start" : "Stop")} ></Button>
       </View>
     );
   }
