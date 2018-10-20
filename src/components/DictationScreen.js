@@ -28,12 +28,19 @@ import { fetchData, putData } from '../actions/actions';
 import TouchID from 'react-native-touch-id';
 import { GoogleAnalyticsTracker } from "react-native-google-analytics-bridge";
 let tracker = new GoogleAnalyticsTracker("UA-120230032-1");
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
+import Sound from 'react-native-sound';
 
-// import Sound from 'react-native-sound';
+Sound.setCategory('Playback');
 
-// Sound.setCategory('Playback');
-
+let blip = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
+              if (error) {
+                  console.log('failed to load the sound', error);
+              } else {
+                  // blip.play(); // have to put the call to play() in the onload callback
+              }
+          });
 
 
 type Props = {};
@@ -92,6 +99,7 @@ class DictationScreen extends Component<Props> {
     //     console.log('your device doesnt support touchID');
     //     }
     //   );
+    
     this.setState({serverUp: true})
     this.state.originalCursorLocation = this.state.cursorLocation
     this.setState({cursorLocation: {end: 0, start: 0} })
@@ -103,6 +111,10 @@ class DictationScreen extends Component<Props> {
 
 
   toggleRecognizing() {
+    // Vibration.vibrate();
+    // ReactNativeHapticFeedback.trigger('impactLight', true);
+    ReactNativeHapticFeedback.trigger('impactLight', true);
+    
     if (this.state.recording === false) { 
       Keyboard.dismiss()
       this.setState({recording: true}) 
@@ -158,14 +170,18 @@ class DictationScreen extends Component<Props> {
   }
 
   _startRecognizing(e) {
-    // Vibration.vibrate()
-    // let sound = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
-    //               if (error) {
-    //                   console.log('failed to load the sound', error);
-    //               } else {
-    //                   sound.play(); // have to put the call to play() in the onload callback
-    //               }
-    //           });
+     // Vibration.vibrate()
+    // ReactNativeHapticFeedback.trigger('impactLight', true);
+    blip.play((success) => {
+          if (success) {
+            console.log('successfully finished playing');
+          } else {
+            console.log('playback failed due to audio decoding errors');
+            // reset the player to its uninitialized state (android only)
+            // this is the only option to recover after an error occured and use the player again
+            blip.reset();
+          }
+        });
     this.setState({
       recognized: '',
       pitch: '',
@@ -193,23 +209,29 @@ class DictationScreen extends Component<Props> {
   }
 
   _stopRecognizing(e) {
-      // Vibration.vibrate();
-      // let sound = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
-      //             if (error) {
-      //                 console.log('failed to load the sound', error);
-      //             } else {
-      //                 sound.play(); // have to put the call to play() in the onload callback
-      //             }
-      //         });
+      
       Voice.stop();
+
       
       let patientID = this.props.navigation.getParam('id', '0')
+      
       if (this.state.results[0] === undefined){Alert.alert('Sorry, what now?! No Voice input detected! Please speak louder, get better WiFi, or give your connection more time.')}
       else {
         let newNote = this.state.notes
         newNote[patientID] = this.state.originalNote.slice(0, this.state.originalCursorStart) + ' ' + this.state.results[0] + ' ' + this.state.originalNote.slice(this.state.originalCursorEnd, this.state.originalNote.length)
         this._storeNotes()
       }
+      blip.play((success) => {
+            if (success) {
+              console.log('successfully finished playing');
+            } else {
+              console.log('playback failed due to audio decoding errors');
+              // reset the player to its uninitialized state (android only)
+              // this is the only option to recover after an error occured and use the player again
+              blip.reset();
+            }
+          });
+
   }
 
   keyboardToggle(){
