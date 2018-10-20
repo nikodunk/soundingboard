@@ -125,7 +125,12 @@ render () {
         
         <Button style={styles.button}
         onPress={this._toggleRecognizing.bind(this)}
+        title={(this.state.recording === 'no' ? "Dictate" : "Stop")} ></Button>
+
+        <Button style={styles.button}
+        onPress={this._toggleRecognizing.bind(this)}
         title={(this.state.recording === 'no' ? "Start" : "Stop")} ></Button>
+      
       </View>
     );
   }
@@ -140,7 +145,7 @@ const styles = StyleSheet.create({
   },
   transcript: {
     textAlign: 'center',
-    marginTop: 100,
+    marginTop: 20,
   },
   button: {
     textAlign: 'center',
