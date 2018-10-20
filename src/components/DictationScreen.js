@@ -93,32 +93,14 @@ _toggleRecognizing(e) {
     if (this.state.recording === 'no') { 
       
       // Play the sound with an onEnd callback
-      blip.play((success) => {
-        if (success) {
-          console.log('successfully finished playing');
-        } else {
-          console.log('playback failed due to audio decoding errors');
-          // reset the player to its uninitialized state (android only)
-          // this is the only option to recover after an error occured and use the player again
-          blip.reset();
-        }
-      });
+      blip.play();
 
       this._startRecognition(e);
       setTimeout(() => { 
           if (this.state.recording === 'yes'){
               this._stopRecognition(e); 
               
-              blip.play((success) => {
-                if (success) {
-                  console.log('successfully finished playing');
-                } else {
-                  console.log('playback failed due to audio decoding errors');
-                  // reset the player to its uninitialized state (android only)
-                  // this is the only option to recover after an error occured and use the player again
-                  blip.reset();
-                }
-              });
+              blip.play();
 
             }
        }, 55000);
@@ -126,16 +108,7 @@ _toggleRecognizing(e) {
     else{
       this._stopRecognition(e)
 
-      blip.play((success) => {
-        if (success) {
-          console.log('successfully finished playing');
-        } else {
-          console.log('playback failed due to audio decoding errors');
-          // reset the player to its uninitialized state (android only)
-          // this is the only option to recover after an error occured and use the player again
-          blip.reset();
-        }
-      });
+      blip.play();
 
      }
   }
