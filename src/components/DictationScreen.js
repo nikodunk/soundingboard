@@ -12,16 +12,18 @@ import Voice from 'react-native-voice';
 
 import Sound from 'react-native-sound';
 
-Sound.setCategory('Playback');
+Sound.setCategory('MultiRoute');
 
-let blip = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
-              if (error) {
-                  console.log('failed to load the sound', error);
-              } else {
-                  // blip.play(); // have to put the call to play() in the onload callback
-              }
-          });
-
+var blip = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
+  if (error) {
+    console.log('failed to load the sound', error);
+    return;
+  }
+  // loaded successfully
+  blip.play()
+  blip.setVolume(10)
+  console.log('Volume: ' + blip.getVolume() + ' number of channels: ' + blip.getNumberOfChannels());
+});
 
 
 export default class VoiceNative extends React.Component {
@@ -31,6 +33,7 @@ export default class VoiceNative extends React.Component {
       recognized: '',
       started: '',
       results: [],
+      recording: 'no'
     };
 
 Voice.onSpeechStart = this.onSpeechStart.bind(this);
@@ -41,6 +44,7 @@ Voice.onSpeechStart = this.onSpeechStart.bind(this);
 componentWillUnmount() {
     Voice.destroy().then(Voice.removeAllListeners);
   }
+
 
 onSpeechStart(e) {
     this.setState({
@@ -61,11 +65,11 @@ onSpeechResults(e) {
   }
 
 async _startRecognition(e) {
-    blip.play()
     this.setState({
       recognized: '',
       started: '',
       results: [],
+      recording: 'yes'
     });
     try {
       await Voice.start('en-US');
@@ -75,30 +79,64 @@ async _startRecognition(e) {
   }
 
 async _stopRecognition(e) {
-    blip.play()
     try {
       await Voice.stop();
     } catch (e) {
       console.error(e);
     }
-    this.setState({started: ''})
+    this.setState({recording: 'no'})
   }
 
 
 
 _toggleRecognizing(e) {
-    // Vibration.vibrate();
-    // ReactNativeHapticFeedback.trigger('impactLight', true);
-    // ReactNativeHapticFeedback.trigger('impactLight', true);
-    
-    if (this.state.started === '') { 
+    if (this.state.recording === 'no') { 
+      
+      // Play the sound with an onEnd callback
+      blip.play((success) => {
+        if (success) {
+          console.log('successfully finished playing');
+        } else {
+          console.log('playback failed due to audio decoding errors');
+          // reset the player to its uninitialized state (android only)
+          // this is the only option to recover after an error occured and use the player again
+          blip.reset();
+        }
+      });
+
       this._startRecognition(e);
       setTimeout(() => { 
-          if (this.state.started === '√'){this._stopRecognition(e)}
-       }, 5000);
+          if (this.state.recording === 'yes'){
+              this._stopRecognition(e); 
+              
+              blip.play((success) => {
+                if (success) {
+                  console.log('successfully finished playing');
+                } else {
+                  console.log('playback failed due to audio decoding errors');
+                  // reset the player to its uninitialized state (android only)
+                  // this is the only option to recover after an error occured and use the player again
+                  blip.reset();
+                }
+              });
+
+            }
+       }, 55000);
      }
     else{
       this._stopRecognition(e)
+
+      blip.play((success) => {
+        if (success) {
+          console.log('successfully finished playing');
+        } else {
+          console.log('playback failed due to audio decoding errors');
+          // reset the player to its uninitialized state (android only)
+          // this is the only option to recover after an error occured and use the player again
+          blip.reset();
+        }
+      });
+
      }
   }
 
@@ -114,7 +152,7 @@ render () {
         
         <Button style={styles.button}
         onPress={this._toggleRecognizing.bind(this)}
-        title={(this.state.started === '' ? "Start" : "Stop")} ></Button>
+        title={(this.state.recording === 'no' ? "Start" : "Stop")} ></Button>
       </View>
     );
   }
