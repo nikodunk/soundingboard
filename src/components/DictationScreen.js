@@ -105,13 +105,14 @@ _toggleRecognizing(e) {
 
 render () {
     return (
-      <View>
+      <View style={styles.container}>
         <Text style={styles.transcript}>
-            Transcript
-        </Text>
-        {this.state.results.map((result, index) => <Text style={styles.transcript}> {result}</Text>
+            Transcript{"\n"}
+            {this.state.results.map((result, index) => <Text style={styles.transcript} key={index}> {result}</Text>
         )}
-        <Button style={styles.transcript}
+        </Text>
+        
+        <Button style={styles.button}
         onPress={this._toggleRecognizing.bind(this)}
         title={(this.state.started === '' ? "Start" : "Stop")} ></Button>
       </View>
@@ -120,11 +121,20 @@ render () {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    height: '100%',
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
   transcript: {
     textAlign: 'center',
-    color: '#B0171F',
-    marginBottom: 1,
-    top: '400%',
+    marginTop: 100,
+  },
+  button: {
+    textAlign: 'center',
+    position: 'absolute',
+    bottom: 0,
   },
 });
 
