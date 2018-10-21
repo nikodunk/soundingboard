@@ -174,6 +174,7 @@ _toggleEditing(){
   }
   if (this.state.editing === false){
     // start editing
+    this.myTextInput.focus();
     this.setState({editing: true})
     this.setState({editedText: this.state.storedNote})
   }
@@ -222,6 +223,7 @@ render () {
               <TextInput
                        style={styles.textInput}
                        multiline = {true}
+                       ref={(input) => { this.myTextInput = input; }}
                        onChangeText={(text) => this.setState({editedText: text})}
                        value={this.state.editedText}
                      />
