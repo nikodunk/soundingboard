@@ -38,11 +38,16 @@ export default class VoiceNative extends React.Component {
       results: [],
       recording: false,
       editing: false,
-      previousNote: ''
+      previousNote: null
     };
 
   AsyncStorage.getItem('notes').then((notes) => {
-            this.setState({ 'storedNote': JSON.parse(notes) });
+            if(notes === ''){
+                this.setState({ 'storedNote': '' })
+              }
+            else{
+                this.setState({ 'storedNote': JSON.parse(notes) }) 
+              }
         })
 
 Voice.onSpeechStart = this.onSpeechStart.bind(this);
@@ -74,7 +79,7 @@ onSpeechResults(e) {
   }
 
 async _startRecognition(e) {
-    this.setState({previousNote: this.state.storedNote})
+    this.state.previousNote !== null ? this.setState({previousNote: this.state.storedNote}) : this.setState({previousNote: this.state.storedNote})
 
     this.setState({
       recognized: '',
@@ -132,8 +137,8 @@ email(){
   AsyncStorage.getItem('email').then((email) => {
     // tracker.trackEvent("buttonexport", "exported email");
     Platform.OS === 'ios'
-      ? Linking.openURL('mailto:'+email+' ?cc=&subject=Export from Soapdictate &body='+ this.state.storedNote) 
-      : Linking.openURL('mailto:'+email+' ?cc=&subject=yourSubject&body=yourMessage')
+      ? Linking.openURL('mailto:'+JSON.parse(email)+' ?cc=&subject=Export from Soapdictate &body='+ this.state.storedNote) 
+      : Linking.openURL('mailto:'+JSON.parse(email)+' ?cc=&subject=yourSubject&body=yourMessage')
   })
 }
 
@@ -143,17 +148,23 @@ delete(){
 }
 
 undo(){
-  AsyncStorage.setItem('notes', this.state.previousNote)
-  this.setState({storedNote: this.state.previousNote})
+  if (this.state.previousNote !== null ){ 
+      AsyncStorage.setItem('notes', JSON.stringify(this.state.previousNote)); 
+      this.setState({storedNote: this.state.previousNote})
+     }
+  else return
+    
 }
 
-toggleEditing(){
+_toggleEditing(){
   if (this.state.editing === true){
+    // stop editing and save
     this.setState({editing: false})
-    AsyncStorage.setItem('notes', this.state.editedText)
+    AsyncStorage.setItem('notes', JSON.stringify(this.state.editedText))
     this.setState({storedNote: this.state.editedText})
   }
   if (this.state.editing === false){
+    // start editing
     this.setState({editing: true})
     this.setState({editedText: this.state.storedNote})
   }
@@ -166,57 +177,62 @@ toggleEditing(){
 render () {
     return (
       <KeyboardAvoidingView style={styles.container}>
-
         
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          
-          <Button 
-          onPress={this.undo.bind(this)}
-          title={"Undo"} ></Button>
-
-          <Button 
-            onPress={this.delete.bind(this)}
-            title={"Delete"} ></Button>
-
-          <Button 
-          onPress={this.toggleEditing.bind(this)}
-          title={"Edit"} ></Button>
-
-        </View>
-        
-        <View style={styles.transcript}>
-          <Text style={style={textAlign: 'center'}}>
-              Transcript
-          </Text>
-
-          {this.state.editing ? 
-            <TextInput
-                     multiline = {true}
-                     numberOfLines = {4}
-                     onChangeText={(text) => this.setState({editedText: text})}
-                     value={this.state.editedText}
-                   />
-            :
-            <Text style={style={textAlign: 'center'}}>
-              {this.state.storedNote}
-              {this.state.recording === true ? this.state.results[0] : null }
-            </Text> }
-        </View>
-        
-        <View style={styles.bottomBar}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+          <View style={styles.topBar}>
             
-            <Button
-            onPress={this._toggleRecognizing.bind(this)}
-            title={(this.state.recording === false ? "Dictate" : "Stop")} ></Button>
+            <Button 
+            onPress={this.undo.bind(this)}
+            title={"Undo"} ></Button>
 
             <Button 
-            onPress={this.email.bind(this)}
-            title={"Email"} ></Button>
+              onPress={this.delete.bind(this)}
+              title={"Delete"} ></Button>
+
+            {!this.state.editing ? 
+              <Button 
+                onPress={this._toggleEditing.bind(this)}
+                title={"Edit"} ></Button>
+              :
+              <Button 
+                onPress={this._toggleEditing.bind(this)}
+                title={"Done"} ></Button>
+            }
 
           </View>
-        </View>
-      
+          
+          <View style={styles.transcript}>
+            <Text style={style={textAlign: 'center'}}>
+                Transcript
+            </Text>
+
+            {this.state.editing ? 
+              <TextInput
+                       multiline = {true}
+                       numberOfLines = {4}
+                       onChangeText={(text) => this.setState({editedText: text})}
+                       value={this.state.editedText}
+                     />
+              :
+              <Text style={style={textAlign: 'center'}}>
+                {this.state.storedNote}
+                {this.state.recording === true ? this.state.results[0] : null }
+              </Text> }
+          </View>
+          
+          <View style={styles.bottomBar}>
+
+              <Button
+              onPress={this._toggleRecognizing.bind(this)}
+              title={(this.state.recording === false ? "Dictate" : "Stop")} ></Button>
+
+              <Button 
+              onPress={this.email.bind(this)}
+              title={"Email"} ></Button>
+
+          </View>
+
+
+        
       </KeyboardAvoidingView>
     );
   }
@@ -228,13 +244,17 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column'
   },
+  topBar:{
+    flexDirection: 'row', 
+    justifyContent: 'space-between'
+  },
   transcript: {
-    marginTop: 20
+    marginTop: 20,
+    flex: 1,
   },
   bottomBar: {
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
+    flexDirection: 'row', 
+    justifyContent: 'space-around'
   }
 });
 
