@@ -176,7 +176,7 @@ _toggleEditing(){
 
 render () {
     return (
-      <KeyboardAvoidingView style={styles.container}>
+      <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
         
           <View style={styles.topBar}>
             
@@ -207,14 +207,15 @@ render () {
 
             {this.state.editing ? 
               <TextInput
+                       style={styles.textInput}
                        multiline = {true}
-                       numberOfLines = {4}
                        onChangeText={(text) => this.setState({editedText: text})}
                        value={this.state.editedText}
                      />
               :
               <Text style={style={textAlign: 'center'}}>
                 {this.state.storedNote}
+                {'\u00A0'}
                 {this.state.recording === true ? this.state.results[0] : null }
               </Text> }
           </View>
