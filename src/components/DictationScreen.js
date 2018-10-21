@@ -8,7 +8,9 @@ import {
   AppRegistry,
   AsyncStorage,
   Linking,
-  Platform
+  Platform,
+  TextInput,
+  KeyboardAvoidingView
 } from 'react-native';
 
 import Voice from 'react-native-voice';
@@ -148,9 +150,12 @@ undo(){
 toggleEditing(){
   if (this.state.editing === true){
     this.setState({editing: false})
+    AsyncStorage.setItem('notes', this.state.editedText)
+    this.setState({storedNote: this.state.editedText})
   }
   if (this.state.editing === false){
     this.setState({editing: true})
+    this.setState({editedText: this.state.storedNote})
   }
   else return
       
@@ -160,7 +165,7 @@ toggleEditing(){
 
 render () {
     return (
-      <View style={styles.container}>
+      <KeyboardAvoidingView style={styles.container}>
 
         
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -185,7 +190,12 @@ render () {
           </Text>
 
           {this.state.editing ? 
-            null
+            <TextInput
+                     multiline = {true}
+                     numberOfLines = {4}
+                     onChangeText={(text) => this.setState({editedText: text})}
+                     value={this.state.editedText}
+                   />
             :
             <Text style={style={textAlign: 'center'}}>
               {this.state.storedNote}
@@ -207,7 +217,7 @@ render () {
           </View>
         </View>
       
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }
