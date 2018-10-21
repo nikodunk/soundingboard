@@ -101,10 +101,19 @@ async _stopRecognition(e) {
       console.error(e);
     }
     this.setState({recording: false})
-    var newNote
-    this.state.storedNote ? newNote = this.state.storedNote + ' ' + this.state.results[0] : newNote = this.state.results[0] 
-    AsyncStorage.setItem('notes', JSON.stringify(newNote))
-    this.setState({ 'storedNote': newNote });
+    
+    if (this.state.results[0] === undefined){
+        setTimeout(() => { 
+            this.setState({noInput: false})
+          }, 5000);
+        this.setState({noInput: true})
+      }
+    else {
+      var newNote
+      this.state.storedNote ? newNote = this.state.storedNote + ' ' + this.state.results[0] : newNote = this.state.results[0] 
+      AsyncStorage.setItem('notes', JSON.stringify(newNote))
+      this.setState({ 'storedNote': newNote });
+    }
   }
 
 
@@ -209,7 +218,7 @@ render () {
                 Transcript
             </Text>
 
-            {this.state.editing ? 
+            { this.state.editing ? 
               <TextInput
                        style={styles.textInput}
                        multiline = {true}
@@ -222,18 +231,30 @@ render () {
                 {'\u00A0'}
                 {this.state.recording === true ? this.state.results[0] : null }
               </Text> }
+
+            { this.state.noInput ? 
+              <Text style={{color: 'red'}}>
+                No Voice input detected! Please speak louder, get better WiFi, or give your connection more time.
+              </Text> :
+              null
+            }
+
+
           </View>
           
           {!this.state.editing ? 
             <View style={styles.bottomBar}>
 
               <Button
+              color="red"
               onPress={this._toggleRecognizing.bind(this)}
               title={(this.state.recording === false ? "Dictate" : "Stop")} ></Button>
 
-              <Button
-              onPress={this.email.bind(this)}
-              title={"Email"} ></Button>
+              { this.state.storedNote ?
+                <Button
+                onPress={this.email.bind(this)}
+                title={"Email"} ></Button>
+                : null }
 
             </View>
             : null}
@@ -261,7 +282,8 @@ const styles = StyleSheet.create({
   },
   bottomBar: {
     flexDirection: 'row', 
-    justifyContent: 'space-around'
+    justifyContent: 'space-around',
+    marginBottom: 20
   },
   textInput:{
       flex: 1,
