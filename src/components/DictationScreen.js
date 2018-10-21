@@ -50,9 +50,11 @@ export default class VoiceNative extends React.Component {
               }
         })
 
-Voice.onSpeechStart = this.onSpeechStart.bind(this);
-    Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
-    Voice.onSpeechResults = this.onSpeechResults.bind(this);
+  
+
+  Voice.onSpeechStart = this.onSpeechStart.bind(this);
+  Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
+  Voice.onSpeechResults = this.onSpeechResults.bind(this);
   }
 
 componentWillUnmount() {
@@ -174,7 +176,7 @@ _toggleEditing(){
   }
   if (this.state.editing === false){
     // start editing
-    this.myTextInput.focus();
+    
     this.setState({editing: true})
     this.setState({editedText: this.state.storedNote})
   }
@@ -192,15 +194,18 @@ render () {
             
             { this.state.storedNote ?
               <View style={styles.topBar}>
-                <Button 
-                  onPress={this.undo.bind(this)}
-                  title={"Undo"} ></Button>
 
-                <Button 
-                  style={{color: 'lightblue'}}
-                  onPress={this.delete.bind(this)}
-                  title={"Delete"} ></Button>
+                  <Button 
+                    disabled={this.state.editing}
+                    onPress={this.undo.bind(this)}
+                    title={"Undo"} ></Button>
 
+                  <Button 
+                    disabled={this.state.editing}
+                    onPress={this.delete.bind(this)}
+                    title={"Delete"} ></Button>
+                
+                
                 {!this.state.editing ? 
                   <Button
                     onPress={this._toggleEditing.bind(this)}
@@ -223,7 +228,7 @@ render () {
               <TextInput
                        style={styles.textInput}
                        multiline = {true}
-                       ref={(input) => { this.myTextInput = input; }}
+                       autoFocus = {true}
                        onChangeText={(text) => this.setState({editedText: text})}
                        value={this.state.editedText}
                      />
@@ -247,16 +252,16 @@ render () {
           {!this.state.editing ? 
             <View style={styles.bottomBar}>
 
-              <Button
-              color="red"
-              onPress={this._toggleRecognizing.bind(this)}
-              title={(this.state.recording === false ? "Dictate" : "Stop")} ></Button>
-
-              { this.state.storedNote ?
                 <Button
+                color="red"
+                onPress={this._toggleRecognizing.bind(this)}
+                title={(this.state.recording === false ? "Dictate" : "Stop")} ></Button>
+              
+                <Button
+                disabled={!this.state.storedNote}
                 onPress={this.email.bind(this)}
-                title={"Email"} ></Button>
-                : null }
+                title={"Export to email"} ></Button>
+              
 
             </View>
             : null}
@@ -276,7 +281,7 @@ const styles = StyleSheet.create({
   },
   topBar:{
     flexDirection: 'row', 
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   transcript: {
     marginTop: 20,
