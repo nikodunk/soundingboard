@@ -137,8 +137,8 @@ email(){
   AsyncStorage.getItem('email').then((email) => {
     // tracker.trackEvent("buttonexport", "exported email");
     Platform.OS === 'ios'
-      ? Linking.openURL('mailto:'+JSON.parse(email)+' ?cc=&subject=Export from Soapdictate &body='+ this.state.storedNote) 
-      : Linking.openURL('mailto:'+JSON.parse(email)+' ?cc=&subject=yourSubject&body=yourMessage')
+      ? Linking.openURL('mailto:'+email+' ?cc=&subject=Export from Soapdictate &body='+ this.state.storedNote) 
+      : Linking.openURL('mailto:'+email+' ?cc=&subject=yourSubject&body=yourMessage')
   })
 }
 
@@ -178,27 +178,31 @@ render () {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
         
-          <View style={styles.topBar}>
+          
             
-            <Button 
-            onPress={this.undo.bind(this)}
-            title={"Undo"} ></Button>
+            { this.state.storedNote ?
+              <View style={styles.topBar}>
+                <Button 
+                  onPress={this.undo.bind(this)}
+                  title={"Undo"} ></Button>
 
-            <Button 
-              onPress={this.delete.bind(this)}
-              title={"Delete"} ></Button>
+                <Button 
+                  style={{color: 'lightblue'}}
+                  onPress={this.delete.bind(this)}
+                  title={"Delete"} ></Button>
 
-            {!this.state.editing ? 
-              <Button 
-                onPress={this._toggleEditing.bind(this)}
-                title={"Edit"} ></Button>
-              :
-              <Button 
-                onPress={this._toggleEditing.bind(this)}
-                title={"Done"} ></Button>
-            }
+                {!this.state.editing ? 
+                  <Button
+                    onPress={this._toggleEditing.bind(this)}
+                    title={"Edit"} ></Button>
+                  :
+                  <Button 
+                    onPress={this._toggleEditing.bind(this)}
+                    title={"Done"} ></Button>}
+              </View>
+            : null }
 
-          </View>
+          
           
           <View style={styles.transcript}>
             <Text style={style={textAlign: 'center'}}>
@@ -220,17 +224,19 @@ render () {
               </Text> }
           </View>
           
-          <View style={styles.bottomBar}>
+          {!this.state.editing ? 
+            <View style={styles.bottomBar}>
 
               <Button
               onPress={this._toggleRecognizing.bind(this)}
               title={(this.state.recording === false ? "Dictate" : "Stop")} ></Button>
 
-              <Button 
+              <Button
               onPress={this.email.bind(this)}
               title={"Email"} ></Button>
 
-          </View>
+            </View>
+            : null}
 
 
         
@@ -256,7 +262,17 @@ const styles = StyleSheet.create({
   bottomBar: {
     flexDirection: 'row', 
     justifyContent: 'space-around'
-  }
+  },
+  textInput:{
+      flex: 1,
+      borderColor: 'gray', 
+      borderWidth: 1, 
+      borderRadius: 5, 
+      padding: 5, 
+      margin: 5,
+      fontSize: 20,
+      backgroundColor: 'white'
+    },
 });
 
 AppRegistry.registerComponent('VoiceNative', () => VoiceNative);
