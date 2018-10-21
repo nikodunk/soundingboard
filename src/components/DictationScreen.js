@@ -225,7 +225,6 @@ render () {
 const styles = StyleSheet.create({
   container: {
     marginTop: 20,
-    height: '100%',
     flex: 1,
     flexDirection: 'column'
   },
