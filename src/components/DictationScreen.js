@@ -10,7 +10,9 @@ import {
   Linking,
   Platform,
   TextInput,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  Vibration,
+  ScrollView
 } from 'react-native';
 
 import Voice from 'react-native-voice';
@@ -38,7 +40,9 @@ export default class VoiceNative extends React.Component {
       results: [],
       recording: false,
       editing: false,
-      previousNote: null
+      previousNote: null,
+      noInput: false,
+      stopping: false
     };
 
   AsyncStorage.getItem('notes').then((notes) => {
@@ -55,6 +59,7 @@ export default class VoiceNative extends React.Component {
   Voice.onSpeechStart = this.onSpeechStart.bind(this);
   Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
   Voice.onSpeechResults = this.onSpeechResults.bind(this);
+  Voice.onSpeechEnd = this.onSpeechEnd.bind(this);
   }
 
 componentWillUnmount() {
@@ -80,6 +85,28 @@ onSpeechResults(e) {
     });
   }
 
+// EVENT CALLED ONLY IF THERE ARE RESULTS
+// AND WHEN FINAL RESULTS ARE IN BACK FROM REMOTE – CAN BE DELAYED AFTER BUTTON CLICKED
+onSpeechEnd(e) {
+    
+    var newNote
+    // CONCATENATE TO OLD NOTE IF THERE WAS AN EXISTING NOTE, OTHERWISE NEW NOTE
+    this.state.storedNote ? newNote = this.state.storedNote + ' ' + this.state.results[0] : newNote = this.state.results[0] 
+
+    // SAVE TO STATE AND TO DISK
+    AsyncStorage.setItem('notes', JSON.stringify(newNote))
+    this.setState({ 'storedNote': newNote });
+    
+
+    this.setState({
+      results: [],
+      recording: false,
+      stopping: false
+    });
+  }
+
+
+// START RECOGNITION
 async _startRecognition(e) {
     this.state.previousNote !== null ? this.setState({previousNote: this.state.storedNote}) : this.setState({previousNote: this.state.storedNote})
 
@@ -96,35 +123,34 @@ async _startRecognition(e) {
     }
   }
 
+// STOP RECOGNITION
 async _stopRecognition(e) {
     try {
       await Voice.stop();
     } catch (e) {
       console.error(e);
     }
-    this.setState({recording: false})
-    
+    this.setState({stopping: true})
+
+    // CASE UNDEFINED
     if (this.state.results[0] === undefined){
+        this.setState({noInput: true, recording: false, stopping: false})
         setTimeout(() => { 
             this.setState({noInput: false})
           }, 5000);
-        this.setState({noInput: true})
       }
-    else {
-      var newNote
-      this.state.storedNote ? newNote = this.state.storedNote + ' ' + this.state.results[0] : newNote = this.state.results[0] 
-      AsyncStorage.setItem('notes', JSON.stringify(newNote))
-      this.setState({ 'storedNote': newNote });
-    }
+    
+    
   }
 
 
-
+// TOGGLE RECOGNITION
 _toggleRecognizing(e) {
     if (this.state.recording === false) { 
       
       // Play the sound with an onEnd callback
       blip.play();
+      // Vibration.vibrate()
 
       this._startRecognition(e);
       setTimeout(() => { 
@@ -138,9 +164,10 @@ _toggleRecognizing(e) {
      }
     else{
       this._stopRecognition(e)
-
+      
       blip.play();
-
+      Vibration.vibrate()
+      
      }
   }
 
@@ -189,35 +216,6 @@ _toggleEditing(){
 render () {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
-        
-          
-            
-            { this.state.storedNote ?
-              <View style={styles.topBar}>
-
-                  <Button 
-                    disabled={this.state.editing}
-                    onPress={this.undo.bind(this)}
-                    title={"Undo"} ></Button>
-
-                  <Button 
-                    disabled={this.state.editing}
-                    onPress={this.delete.bind(this)}
-                    title={"Delete"} ></Button>
-                
-                
-                {!this.state.editing ? 
-                  <Button
-                    onPress={this._toggleEditing.bind(this)}
-                    title={"Edit"} ></Button>
-                  :
-                  <Button 
-                    onPress={this._toggleEditing.bind(this)}
-                    title={"Done"} ></Button>}
-              </View>
-            : null }
-
-          
           
           <View style={styles.transcript}>
             <Text style={style={textAlign: 'center'}}>
@@ -231,40 +229,78 @@ render () {
                        autoFocus = {true}
                        onChangeText={(text) => this.setState({editedText: text})}
                        value={this.state.editedText}
-                     />
+              />
               :
-              <Text style={style={textAlign: 'center'}}>
-                {this.state.storedNote}
-                {'\u00A0'}
-                {this.state.recording === true ? this.state.results[0] : null }
-              </Text> }
+              <ScrollView>
+                <Text style={style={textAlign: 'center', padding: 8}}>
+                  {this.state.storedNote}
+                  {'\u00A0'}
+                  {this.state.recording === true ? this.state.results[0] : null }
+                  {this.state.storedNote || this.state.results[0] ? null : <Text style={{color: 'lightgrey'}}> {'\n'} Press "Dictate" below and speak your note. {'\n'}{'\n'}Say commands like "Period", "Questionmark", "Semicolon", "New Line" etc. to structure your note.</Text>}
+                </Text>
+              </ScrollView> 
+            }
 
             { this.state.noInput ? 
-              <Text style={{color: 'red'}}>
+              <Text style={{color: 'red', textAlign: 'center', padding: 5}}>
                 No Voice input detected! Please speak louder, get better WiFi, or give your connection more time.
-              </Text> :
+              </Text> 
+              :
               null
             }
 
 
           </View>
           
-          {!this.state.editing ? 
-            <View style={styles.bottomBar}>
+           
+            
+            
 
-                <Button
-                color="red"
-                onPress={this._toggleRecognizing.bind(this)}
-                title={(this.state.recording === false ? "Dictate" : "Stop")} ></Button>
-              
-                <Button
-                disabled={!this.state.storedNote}
-                onPress={this.email.bind(this)}
-                title={"Export to email"} ></Button>
-              
+              { this.state.storedNote ?
+                <View style={styles.bottomBar}>
+                
+                  <Button 
+                    color="red"
+                    disabled={this.state.editing || this.state.recording }
+                    onPress={this.delete.bind(this)}
+                    title={"Delete"} ></Button>
 
+                  <Button 
+                    disabled={this.state.editing || this.state.recording }
+                    onPress={this.undo.bind(this)}
+                    title={"Undo"} ></Button>
+
+                  {!this.state.editing ? 
+                    <Button
+                      disabled={this.state.recording }
+                      onPress={this._toggleEditing.bind(this)}
+                      title={"Edit"} ></Button>
+                    :
+                    <Button 
+                      onPress={this._toggleEditing.bind(this)}
+                      title={"Done"} ></Button>
+                  }
+
+                  <Button
+                  color="lime"
+                  disabled={ this.state.editing || this.state.recording }
+                  onPress={this.email.bind(this)}
+                  title={"Email"} ></Button>
+
+                </View> : null 
+              }
+
+          {!this.state.editing ?
+            <View>
+              <View style={styles.bottomBar}>
+                  <Button
+                  disabled={this.state.stopping }
+                  onPress={this._toggleRecognizing.bind(this)}
+                  title={(this.state.recording === false ? "Dictate" : "Stop")} ></Button>
+              </View>
             </View>
-            : null}
+            : null
+          }
 
 
         
