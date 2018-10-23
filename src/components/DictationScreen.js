@@ -20,6 +20,7 @@ import Voice from 'react-native-voice';
 
 import Sound from 'react-native-sound';
 
+
 Sound.setCategory('MultiRoute');
 
 var blip = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
@@ -57,15 +58,18 @@ export default class VoiceNative extends React.Component {
 
   
 
+
   Voice.onSpeechStart = this.onSpeechStart.bind(this);
   Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
   Voice.onSpeechResults = this.onSpeechResults.bind(this);
   Voice.onSpeechEnd = this.onSpeechEnd.bind(this);
   }
 
+
 componentWillUnmount() {
     Voice.destroy().then(Voice.removeAllListeners);
   }
+
 
 
 onSpeechStart(e) {
@@ -107,6 +111,7 @@ onSpeechEnd(e) {
   }
 
 
+
 // START RECOGNITION
 async _startRecognition(e) {
     this.state.previousNote !== null ? this.setState({previousNote: this.state.storedNote}) : this.setState({previousNote: this.state.storedNote})
@@ -143,6 +148,7 @@ async _stopRecognition(e) {
     
     
   }
+
 
 
 // TOGGLE RECOGNITION
@@ -199,14 +205,16 @@ undo(){
 
 _toggleEditing(){
   if (this.state.editing === true){
-    // stop editing and save
+
+    // STOP EDITING AND SAVE
     this.setState({editing: false})
     AsyncStorage.setItem('notes', JSON.stringify(this.state.editedText))
     this.setState({storedNote: this.state.editedText})
   }
   if (this.state.editing === false){
-    // start editing
     
+
+    // START EDITING
     this.setState({editing: true})
     this.setState({editedText: this.state.storedNote})
   }
