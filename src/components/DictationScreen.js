@@ -216,7 +216,13 @@ _toggleEditing(){
 render () {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
-          
+          <View>
+            <Button
+              onPress={this.props.navigation.navigate("SettingsScreen")}
+              title={"Settings"}
+              ></Button>
+          </View>
+
           <View style={styles.transcript}>
             <Text style={style={textAlign: 'center'}}>
                 Transcript
@@ -252,43 +258,40 @@ render () {
 
           </View>
           
-           
+          
+          { this.state.storedNote ?
+            <View style={styles.bottomBar}>
             
-            
+              <Button 
+                color="red"
+                disabled={this.state.editing || this.state.recording }
+                onPress={this.delete.bind(this)}
+                title={"Delete"} ></Button>
 
-              { this.state.storedNote ?
-                <View style={styles.bottomBar}>
-                
-                  <Button 
-                    color="red"
-                    disabled={this.state.editing || this.state.recording }
-                    onPress={this.delete.bind(this)}
-                    title={"Delete"} ></Button>
+              <Button 
+                disabled={this.state.editing || this.state.recording }
+                onPress={this.undo.bind(this)}
+                title={"Undo"} ></Button>
 
-                  <Button 
-                    disabled={this.state.editing || this.state.recording }
-                    onPress={this.undo.bind(this)}
-                    title={"Undo"} ></Button>
-
-                  {!this.state.editing ? 
-                    <Button
-                      disabled={this.state.recording }
-                      onPress={this._toggleEditing.bind(this)}
-                      title={"Edit"} ></Button>
-                    :
-                    <Button 
-                      onPress={this._toggleEditing.bind(this)}
-                      title={"Done"} ></Button>
-                  }
-
-                  <Button
-                  color="lime"
-                  disabled={ this.state.editing || this.state.recording }
-                  onPress={this.email.bind(this)}
-                  title={"Email"} ></Button>
-
-                </View> : null 
+              {!this.state.editing ? 
+                <Button
+                  disabled={this.state.recording }
+                  onPress={this._toggleEditing.bind(this)}
+                  title={"Edit"} ></Button>
+                :
+                <Button 
+                  onPress={this._toggleEditing.bind(this)}
+                  title={"Done"} ></Button>
               }
+
+              <Button
+              color="lime"
+              disabled={ this.state.editing || this.state.recording }
+              onPress={this.email.bind(this)}
+              title={"Email"} ></Button>
+
+            </View> : null 
+          }
 
           {!this.state.editing ?
             <View>
