@@ -12,7 +12,8 @@ import {  StyleSheet,
           ImageBackground,
           TextInput,
           Platform,
-          Keyboard} from 'react-native';
+          Keyboard,
+          Button} from 'react-native';
 import { connect } from 'react-redux';
 import { alterUsergroup } from '../actions/actions';
 import styles from './_styles'
@@ -49,27 +50,27 @@ class SettingsScreen extends React.Component {
 
       render() {
           return (
-              <ImageBackground source={require('../../assets/2.jpg')} style={[styles.loginContainer, { flex: 1, width: '100%'}]}>
-                <View style={styles.container}>
+              
+                <Animatable.View animation="slideInLeft" duration={400} easing="ease-out" style={{flex: 1, alignItems: 'center',}}>
                   <StatusBar
                      barStyle="dark-content"
                    />
-                        <Animatable.View animation="slideInLeft" duration={300} easing="ease-out" style={{marginTop: 30, marginLeft: 10, flexDirection: 'row', alignItems: 'flex-start', width: '100%'}}>
-                          <TouchableOpacity
-                              onPress={() => this.props.navigation.openDrawer() }
-                              activeOpacity={.4}
-                              style={styles.hamburgerBar}>
-                                  <Image style={styles.hamburger} source={require('../../assets/hamburger.png')} />
-                                  <Text style={styles.title}><Text>Settings</Text></Text>
-                          </TouchableOpacity>   
-                        </Animatable.View> 
+                        
+                  <View style={{flexDirection: 'row', marginTop: 20, justifyContent: 'space-between', width: '100%'}}>
+                    <Button
+                      onPress={() => this.props.navigation.navigate('DictationScreen')}
+                      title={"Back"}
+                      ></Button>
+                    <Text style={{padding: 8, fontSize: 20}}>Settings   </Text>
+                    <Button
+                      onPress={() => {}}
+                      title={"    "}
+                      ></Button>
+                  </View>   
+                        
                         
                       
                       <View style={{flex: 1, alignItems: 'center', padding: 10}}>
-                          
-
-                          <Text></Text>
-                          
                           <View style={{flexDirection:'row', alignItems: 'center'}}>
                             
                             <TextInput 
@@ -127,11 +128,11 @@ class SettingsScreen extends React.Component {
 
                       </View>  
                             
-                </View> 
+                </Animatable.View> 
                 
 
               
-            </ImageBackground>
+            
 
         
           );

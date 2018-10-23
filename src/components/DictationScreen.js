@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
   AppRegistry,
   AsyncStorage,
   Linking,
@@ -14,6 +13,8 @@ import {
   Vibration,
   ScrollView
 } from 'react-native';
+import Button from 'react-native-button';
+import * as Animatable from 'react-native-animatable';
 
 import Voice from 'react-native-voice';
 
@@ -181,6 +182,7 @@ email(){
 }
 
 delete(){
+  this.setState({previousNote: this.state.storedNote})
   AsyncStorage.removeItem('notes')
   this.setState({storedNote: ''})
 }
@@ -188,10 +190,11 @@ delete(){
 undo(){
   if (this.state.previousNote !== null ){ 
       AsyncStorage.setItem('notes', JSON.stringify(this.state.previousNote)); 
+      destroyedNote = this.state.storedNote
       this.setState({storedNote: this.state.previousNote})
+      this.setState({previousNote: destroyedNote})
      }
   else return
-    
 }
 
 _toggleEditing(){
@@ -208,7 +211,6 @@ _toggleEditing(){
     this.setState({editedText: this.state.storedNote})
   }
   else return
-      
   
 }
 
@@ -216,94 +218,107 @@ _toggleEditing(){
 render () {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
-          <View>
-            <Button
-              onPress={this.props.navigation.navigate("SettingsScreen")}
-              title={"Settings"}
-              ></Button>
+          
+          <View style={styles.topBar}>
+                <Button
+                  style={styles.button}
+                  disabled={this.state.recording || this.state.editing }
+                  onPress={() => this.props.navigation.navigate('Settings')}
+                  >Settings</Button>
+
+                <Text style={{padding: 8, fontSize: 20}}>Transcript     </Text>
+
+                {!this.state.editing ? 
+                  <Button
+                    style={styles.button}
+                    disabled={this.state.recording || !this.state.storedNote}
+                    onPress={this._toggleEditing.bind(this)}
+                    >Edit</Button>
+                  :
+                  <Button
+                    style={styles.button} 
+                    onPress={this._toggleEditing.bind(this)}
+                    >Done</Button>
+                }
           </View>
 
           <View style={styles.transcript}>
-            <Text style={style={textAlign: 'center'}}>
-                Transcript
-            </Text>
 
-            { this.state.editing ? 
-              <TextInput
-                       style={styles.textInput}
-                       multiline = {true}
-                       autoFocus = {true}
-                       onChangeText={(text) => this.setState({editedText: text})}
-                       value={this.state.editedText}
-              />
-              :
-              <ScrollView>
-                <Text style={style={textAlign: 'center', padding: 8}}>
-                  {this.state.storedNote}
-                  {'\u00A0'}
-                  {this.state.recording === true ? this.state.results[0] : null }
-                  {this.state.storedNote || this.state.results[0] ? null : <Text style={{color: 'lightgrey'}}> {'\n'} Press "Dictate" below and speak your note. {'\n'}{'\n'}Say commands like "Period", "Questionmark", "Semicolon", "New Line" etc. to structure your note.</Text>}
-                </Text>
-              </ScrollView> 
-            }
+                { this.state.editing ? 
+                  <TextInput
+                           style={styles.textInput}
+                           multiline = {true}
+                           autoFocus = {true}
+                           onChangeText={(text) => this.setState({editedText: text})}
+                           value={this.state.editedText}
+                  />
+                  :
+                  <ScrollView>
+                    <Text style={style={textAlign: 'center', padding: 8}}>
+                      {this.state.storedNote}
+                      {'\u00A0'}
+                      {this.state.recording === true ? this.state.results[0] : null }
+                      {this.state.storedNote || this.state.results[0] ? null : <Text style={{color: 'lightgrey'}}> {'\n'} Press "Dictate" below and speak your note. {'\n'}{'\n'}Say commands like "Period", "Questionmark", "Semicolon", "New Line" etc. to structure your note.</Text>}
+                    </Text>
+                  </ScrollView> 
+                }
 
-            { this.state.noInput ? 
-              <Text style={{color: 'red', textAlign: 'center', padding: 5}}>
-                No Voice input detected! Please speak louder, get better WiFi, or give your connection more time.
-              </Text> 
-              :
-              null
-            }
+
+                { this.state.noInput ? 
+                  <Text style={{color: 'red', textAlign: 'center', padding: 5}}>
+                    No Voice input detected! Please speak louder, get better WiFi, or give your connection more time.
+                  </Text> 
+                  :
+                  null
+                }
 
 
           </View>
           
           
-          { this.state.storedNote ?
-            <View style={styles.bottomBar}>
-            
-              <Button 
-                color="red"
-                disabled={this.state.editing || this.state.recording }
-                onPress={this.delete.bind(this)}
-                title={"Delete"} ></Button>
+          { this.state.storedNote && !this.state.editing ?
+                <Animatable.View animation="slideInUp" duration={400} easing="ease-out">
+                  <View style={styles.optionBar}>
+                      
+                      <Button 
+                        style={styles.button}
+                        disabled={this.state.editing || this.state.recording }
+                        onPress={this.delete.bind(this)}
+                        >Delete</Button>
 
-              <Button 
-                disabled={this.state.editing || this.state.recording }
-                onPress={this.undo.bind(this)}
-                title={"Undo"} ></Button>
+                      
+                      <Button 
+                        style={styles.button}
+                        disabled={this.state.editing || this.state.recording }
+                        onPress={this.undo.bind(this)}
+                        >Undo</Button>
 
-              {!this.state.editing ? 
-                <Button
-                  disabled={this.state.recording }
-                  onPress={this._toggleEditing.bind(this)}
-                  title={"Edit"} ></Button>
+                      
+                      <Button
+                        style={styles.button}
+                        disabled={ this.state.editing || this.state.recording }
+                        onPress={this.email.bind(this)}
+                        >Email</Button>
+
+                  </View>
+                </Animatable.View>
                 :
-                <Button 
-                  onPress={this._toggleEditing.bind(this)}
-                  title={"Done"} ></Button>
-              }
-
-              <Button
-              color="lime"
-              disabled={ this.state.editing || this.state.recording }
-              onPress={this.email.bind(this)}
-              title={"Email"} ></Button>
-
-            </View> : null 
+                null 
           }
+          
 
           {!this.state.editing ?
-            <View>
-              <View style={styles.bottomBar}>
+                <Animatable.View animation="slideInUp" duration={400} easing="ease-out" style={styles.bottomBar}>
                   <Button
-                  disabled={this.state.stopping }
-                  onPress={this._toggleRecognizing.bind(this)}
-                  title={(this.state.recording === false ? "Dictate" : "Stop")} ></Button>
-              </View>
-            </View>
-            : null
+                    style={styles.bottomButton}
+                    disabled={this.state.stopping }
+                    styleDisabled={styles.bottomButtonDisabled}
+                    onPress={this._toggleRecognizing.bind(this)}
+                    >{this.state.recording === false ? "Dictate" : "Stop"}</Button>
+                </Animatable.View>
+                : null
           }
+          
 
 
         
@@ -323,24 +338,51 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   transcript: {
-    marginTop: 20,
     flex: 1,
   },
-  bottomBar: {
-    flexDirection: 'row', 
-    justifyContent: 'space-around',
-    marginBottom: 20
+  button:{
+    padding: 8, 
+    fontSize: 18, 
+    fontWeight: '400',
   },
   textInput:{
-      flex: 1,
-      borderColor: 'gray', 
-      borderWidth: 1, 
-      borderRadius: 5, 
-      padding: 5, 
-      margin: 5,
-      fontSize: 20,
-      backgroundColor: 'white'
+    flex: 1,
+    borderColor: 'gray', 
+    borderWidth: 1, 
+    borderRadius: 5, 
+    padding: 5, 
+    margin: 5,
+    fontSize: 20,
+    backgroundColor: 'white'
     },
+  optionBar:{
+    flexDirection: 'row', 
+    justifyContent: 'space-around'
+  },
+  bottomButton:{
+    color: 'white',
+    padding: 15,
+    margin: '4%',
+    backgroundColor: '#2191fb', 
+    width: '92%',
+    borderWidth: 0,
+    borderRadius: 10,
+    overflow:'hidden',
+    fontSize: 18,
+    fontWeight: '600'
+  },
+  bottomButtonDisabled:{
+    color: 'white',
+    padding: 15,
+    margin: '4%',
+    backgroundColor: 'lightgrey', 
+    width: '92%',
+    borderWidth: 0,
+    borderRadius: 10,
+    overflow:'hidden',
+    fontSize: 18,
+    fontWeight: '600'
+  }
 });
 
 AppRegistry.registerComponent('VoiceNative', () => VoiceNative);

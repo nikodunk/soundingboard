@@ -88,21 +88,7 @@ export default styles = StyleSheet.create({
 
       // other
       
-      materialButton: {
-        borderWidth:0,
-        alignItems:'center',
-        justifyContent:'center',
-        width: 80,
-        height: 80,
-        borderRadius:50,
-        backgroundColor:'#ff0081',
-        opacity: 100,
-        shadowColor: 'grey',
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.5,
-        shadowRadius: 7,
-        elevation: 5
-      },
+     
       materialButtonLong: {
         marginTop: 10,
         borderWidth:0,
@@ -110,23 +96,23 @@ export default styles = StyleSheet.create({
         justifyContent:'center',
         width: 250,
         height: 50,
-        borderRadius:5,
+        borderRadius:10,
         backgroundColor:'#2191fb',
         opacity: 100,
-        shadowColor: 'grey',
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.5,
-        shadowRadius: 7,
-        elevation: 5
+        // shadowColor: 'grey',
+        // shadowOffset: { width: 0, height: 5 },
+        // shadowOpacity: 0.5,
+        // shadowRadius: 7,
+        // elevation: 5
       },
       materialButtonText:{
-        fontSize: 12,
-        fontWeight: '900',
+        fontSize: 18,
+        fontWeight: '600',
         color: 'white'
       },
       materialButtonTextLong:{
-        fontSize: 20,
-        fontWeight: '900',
+        fontSize: 18,
+        fontWeight: '600',
         color: 'white'
       },
       outlineButton: {

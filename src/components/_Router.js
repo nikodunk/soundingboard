@@ -11,7 +11,7 @@ import styles from './_styles'
 
 
 
-SignedInRouter = createDrawerNavigator({
+SignedInRouter = createSwitchNavigator({
 		DictationScreen: { screen: DictationScreen },
     Settings: { screen: SettingsScreen }
 	},
