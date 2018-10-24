@@ -97,9 +97,7 @@ class SettingsScreen extends React.Component {
                           <View style={styles.separator} />
                           
                           <Text></Text>
-                          <Text></Text>
                           <View style={styles.separator} />
-                          <Text></Text>
                           <Text></Text>
                           
                           
@@ -112,10 +110,17 @@ class SettingsScreen extends React.Component {
                           <Text>Email the developers with feature requests, ideas, bugs to fix or feedback!</Text>
 
                           <Text></Text>
-                          <Text></Text>
                           <View style={styles.separator} />
                           <Text></Text>
+
                           <Text></Text>
+                          <Text style={{fontSize: 15, textAlign: 'center', color: 'grey'}}>
+                              You are currently enrolled in the $1.99/mo plan. Cancel your subscription any time in the iOS "Settings" App under "Subscriptions".
+                          </Text>
+                          <Text></Text>
+                          <Text></Text>
+
+
 
 
                           <TouchableOpacity 

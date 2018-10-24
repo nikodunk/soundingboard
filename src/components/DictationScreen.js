@@ -28,8 +28,6 @@ var blip = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
     console.log('failed to load the sound', error);
     return;
   }
-  // blip.setVolume(6)
-  console.log('Volume: ' + blip.getVolume() + ' number of channels: ' + blip.getNumberOfChannels());
 });
 
 
@@ -47,6 +45,8 @@ export default class VoiceNative extends React.Component {
       stopping: false
     };
 
+  AsyncStorage.removeItem('email')
+
   AsyncStorage.getItem('notes').then((notes) => {
             if(notes === ''){
                 this.setState({ 'storedNote': '' })
@@ -56,9 +56,6 @@ export default class VoiceNative extends React.Component {
               }
         })
 
-  
-
-
   Voice.onSpeechStart = this.onSpeechStart.bind(this);
   Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
   Voice.onSpeechResults = this.onSpeechResults.bind(this);
@@ -66,10 +63,11 @@ export default class VoiceNative extends React.Component {
   }
 
 
+
+
 componentWillUnmount() {
     Voice.destroy().then(Voice.removeAllListeners);
   }
-
 
 
 onSpeechStart(e) {
@@ -90,8 +88,8 @@ onSpeechResults(e) {
     });
   }
 
-// EVENT CALLED ONLY IF THERE ARE RESULTS
-// AND WHEN FINAL RESULTS ARE IN BACK FROM REMOTE – CAN BE DELAYED AFTER BUTTON CLICKED
+
+// EVENT CALLED ONLY IF THERE ARE RESULTS AND WHEN FINAL RESULTS ARE IN BACK FROM SERVER – CAN BE DELAYED AFTER STOP
 onSpeechEnd(e) {
     
     var newNote

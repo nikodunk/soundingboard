@@ -196,11 +196,9 @@ export default styles = StyleSheet.create({
         elevation: 7,
       },
       loginBox: {
-        flex: 0.6,
+        flex: 0.5,
         justifyContent:'center',
-        alignItems: 'center', 
-        width: '80%', 
-        marginLeft: '10%',
-        marginRight: '10%'
+        alignItems: 'center',
+        margin: 20
       },
 }); 
