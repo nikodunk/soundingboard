@@ -1,11 +1,12 @@
-ehrMobile
+soapdictate.com
 
 ----------
 
 ![](assets/demo.gif)
 
 iOS:
-
+	
+	react-native run-ios --simulator="iPhone SE"
 	react-native run-ios --simulator="iPhone X"
 	react-native run-ios --simulator="iPhone 6 Plus"
 	react-native run-ios --simulator="iPad Pro (12.9-inch)"

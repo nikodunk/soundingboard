@@ -3,6 +3,7 @@ package com.ehrmobile;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.kevinejohn.RNMixpanel.RNMixpanel;
 import com.dooboolab.RNIap.RNIapPackage;
 import com.reactlibrary.RNReactNativeHapticFeedbackPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
@@ -30,6 +31,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNMixpanel(),
             new RNIapPackage(),
             new RNReactNativeHapticFeedbackPackage(),
             new VectorIconsPackage(),

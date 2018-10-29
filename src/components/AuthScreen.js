@@ -1,12 +1,16 @@
 import React from 'react';
-import { StyleSheet, Text, View, AsyncStorage, TextInput, TouchableOpacity, Alert, ImageBackground, ActivityIndicator, Image, Platform } from 'react-native';
+import { StyleSheet, Text, View, AsyncStorage, TextInput, TouchableOpacity, Alert, ImageBackground, ActivityIndicator, Image, Platform, ScrollView, KeyboardAvoidingView, Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as Animatable from 'react-native-animatable';
+var Mixpanel = require('react-native-mixpanel');
+Mixpanel.sharedInstanceWithToken('c72aabf24fb03673362eae05a8e5150a');
+
 
 import * as RNIap from 'react-native-iap';
 
 
 import Button from 'react-native-button';
+
 
 
 
@@ -32,10 +36,18 @@ class AuthScreen extends React.Component {
        };
   }
 
+  componentDidMount() {
+      Mixpanel.track("Authscreen Loaded");
+      AsyncStorage.getItem('email').then((res) => {
+        email = res
+        this.setState({email: email})
+      })
+  }
 
 
 
   _onPress = async (email) => {
+    Mixpanel.track("Subscribe Pressed");
     this.setState({loading: true})
     fetch('https://healthnotes.herokuapp.com/email/', {
         method: 'POST',
@@ -68,7 +80,6 @@ class AuthScreen extends React.Component {
         console.warn(err); // standardized err.code and err.message available
         
         alert(err.message);
-
         
       })
   }
@@ -80,42 +91,55 @@ class AuthScreen extends React.Component {
         <View style={{ textAlign: 'center', alignItems: 'center', flex: 0.6}}>
       
           <Animatable.View animation="fadeIn" easing="ease-out">
-              <Text style={{fontSize: 26, marginTop: 30, color: '#2191fb'}}>Dictate Your Charting</Text>
+            <Text style={{fontSize: 24, marginTop: 30, color: '#2191fb'}}>
+                Save an hour of typing your charting every day.
+            </Text>
+            <Text style={{fontSize: 16 }}>
+                1-week trial, then $3.99/month. Agree to terms, enter email, and start free trial.
+            </Text>
           </Animatable.View>
-          <Text style={{fontSize: 18, textAlign: 'center', margin: 6, }}>
-              Save 20 hours of typing a month for $1.99/mo.
-          </Text>
-          
           
           { this.state.loading ? 
             
             <ActivityIndicator style={{marginTop: 10}} color="black" />
             
             : 
-            <View style={{marginTop: 20}}>
-              <Text style={{fontSize: 15, textAlign: 'center', color: 'grey'}}>
-                  Type your email to start 1-week free trial.
-              </Text>
-              <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <KeyboardAvoidingView style={{flex: 1}}>
+              <ScrollView style={{flex: 1, margin: 5, borderWidth: 1, borderColor: 'lightgrey', padding: 5}}>
+                            <Text style={{fontSize: 12, color: 'grey'}}>
+                                • Payment will be charged to iTunes Account at confirmation of purchase {'\n'}
+                                • Subscription automatically renews unless auto-renew is turned off at least 24-hours before the end of the current period {'\n'}
+                                • Account will be charged for renewal within 24-hours prior to the end of the current period, and identify the cost of the renewal{'\n'}
+                                • Subscriptions may be managed by the user and auto-renewal may be turned off by going to the user's Account Settings after purchase{'\n'}
+                                • Any unused portion of a free trial period, if offered, will be forfeited when the user purchases a subscription to that publication, where applicable{'\n'}
+                                • By using this software you agree to receiving the occasional feedback or marketing email to help us improve the product for you.{'\n'}
+                            </Text>
+                            <Text style={{fontSize: 12, color: '#2191fb'}}
+                                  onPress={() => Linking.openURL('http://soapdictate.com/terms/')}>
+                              • Terms of Service{'\n'}
+                            </Text>
+                            <Text style={{fontSize: 12, color: '#2191fb'}}
+                                  onPress={() => Linking.openURL('http://soapdictate.com/privacy/')}>
+                              • Privacy Policy{'\n'}
+                            </Text>
+              </ScrollView>
+              <View style={{borderRadius: 10, borderWidth: 1, borderColor: '#2191fb', overflow: 'hidden', marginBottom: 30, margin: 5, marginTop: 0}}>
                 <TextInput 
                     underlineColorAndroid="transparent"
                     style={styles.input}
-                    placeholder={'Work email'}
+                    placeholder={'Enter email'}
                     autoFocus={true}
                     autoCapitalize = 'none'
                     keyboardType={'email-address'}
                     onChangeText={ (text) => {  this.setState({email: text}) }}
                 />
+                <Button 
+                  style={styles.bottomButton}
+                  onPress={() => this._onPress(this.state.email)} >
+                  Start free trial, then $3.99/month
+                </Button>
               </View>
-              <Button 
-                style={styles.bottomButton}
-                onPress={() => this._onPress(this.state.email)} >
-                Start free trial, then $1.99/month
-              </Button> 
-              <Text style={{fontSize: 12, textAlign: 'center', color: 'lightgrey'}}>
-                  By using this software you agree to receiving the occasional feedback or marketing email to help us improve the product for you.
-              </Text>
-            </View>
+            </KeyboardAvoidingView>
           }
       
         </View>
@@ -126,44 +150,25 @@ class AuthScreen extends React.Component {
 
 styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
-    flex: 1
+        backgroundColor: 'white',
+        flex: 1
   },
   input:{
         height: 40, 
-        width: 200,
-        borderColor: 'gray', 
-        borderWidth: 1,
-        marginTop: 10,
-        borderRadius:5,
         backgroundColor:'white',
         paddingLeft: 10,
         padding: 4,
         textAlign: 'center'
       },
   bottomButton:{
-    color: 'white',
-    padding: 15,
-    marginTop: 5,
-    marginBottom: 5,
-    backgroundColor: '#2191fb', 
-    borderWidth: 0,
-    borderRadius: 10,
-    overflow:'hidden',
-    fontSize: 18,
-    fontWeight: '600'
-  },
-  bottomButtonDisabled:{
-    color: 'white',
-    padding: 15,
-    margin: '4%',
-    backgroundColor: 'lightgray', 
-    width: '92%',
-    borderWidth: 0,
-    borderRadius: 10,
-    overflow:'hidden',
-    fontSize: 18,
-    fontWeight: '600'
+        color: 'white',
+        padding: 15,
+        backgroundColor: '#2191fb', 
+        borderWidth: 0,
+        overflow:'hidden',
+        fontSize: 18,
+        fontWeight: '600',
+        height: 50, 
   }
 })
 
