@@ -137,6 +137,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-audio-toolkit')
     compile project(':react-native-mixpanel')
     compile project(':react-native-iap')
     compile project(':react-native-haptic-feedback')

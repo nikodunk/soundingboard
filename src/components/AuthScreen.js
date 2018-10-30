@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, AsyncStorage, TextInput, TouchableOpacity, Aler
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as Animatable from 'react-native-animatable';
 var Mixpanel = require('react-native-mixpanel');
+Mixpanel = Mixpanel.default
 Mixpanel.sharedInstanceWithToken('c72aabf24fb03673362eae05a8e5150a');
 
 
@@ -38,10 +39,10 @@ class AuthScreen extends React.Component {
 
   componentDidMount() {
       Mixpanel.track("Authscreen Loaded");
-      AsyncStorage.getItem('email').then((res) => {
-        email = res
-        this.setState({email: email})
-      })
+      // AsyncStorage.getItem('email').then((res) => {
+      //   email = res
+      //   this.setState({email: email})
+      // })
   }
 
 
@@ -49,6 +50,7 @@ class AuthScreen extends React.Component {
   _onPress = async (email) => {
     Mixpanel.track("Subscribe Pressed");
     this.setState({loading: true})
+    console.log(email)
     fetch('https://healthnotes.herokuapp.com/email/', {
         method: 'POST',
         headers: {
@@ -88,14 +90,17 @@ class AuthScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <View style={{ textAlign: 'center', alignItems: 'center', flex: 0.6}}>
+        <View style={{ textAlign: 'center', alignItems: 'center', flex: .7}}>
       
-          <Animatable.View animation="fadeIn" easing="ease-out">
-            <Text style={{fontSize: 24, marginTop: 30, color: '#2191fb'}}>
-                Save an hour of typing your charting every day.
+          <Animatable.View animation="fadeIn" duration={1000}>
+            <Text style={{fontSize: 24, marginTop: 30, color: '#2191fb', textAlign: 'center'}}>
+                Save an hour of note-typing every day.
             </Text>
-            <Text style={{fontSize: 16 }}>
-                1-week trial, then $3.99/month. Agree to terms, enter email, and start free trial.
+
+          </Animatable.View>
+          <Animatable.View animation="fadeIn"  duration={3000}>
+            <Text style={{fontSize: 16, textAlign: 'center' }}>
+                Agree to terms, enter email, and start 1-week free trial. $3.99/month after that.
             </Text>
           </Animatable.View>
           
@@ -104,8 +109,8 @@ class AuthScreen extends React.Component {
             <ActivityIndicator style={{marginTop: 10}} color="black" />
             
             : 
-            <KeyboardAvoidingView style={{flex: 1}}>
-              <ScrollView style={{flex: 1, margin: 5, borderWidth: 1, borderColor: 'lightgrey', padding: 5}}>
+            <KeyboardAvoidingView behavior="padding" enabled>
+              <ScrollView style={{ margin: 5, borderWidth: 1, borderColor: 'lightgrey', padding: 5}}>
                             <Text style={{fontSize: 12, color: 'grey'}}>
                                 • Payment will be charged to iTunes Account at confirmation of purchase {'\n'}
                                 • Subscription automatically renews unless auto-renew is turned off at least 24-hours before the end of the current period {'\n'}
@@ -123,12 +128,12 @@ class AuthScreen extends React.Component {
                               • Privacy Policy{'\n'}
                             </Text>
               </ScrollView>
-              <View style={{borderRadius: 10, borderWidth: 1, borderColor: '#2191fb', overflow: 'hidden', marginBottom: 30, margin: 5, marginTop: 0}}>
+              <View style={{borderRadius: 10, borderWidth: 1, borderColor: '#2191fb', overflow: 'hidden', margin: 5, marginTop: 0}}>
                 <TextInput 
                     underlineColorAndroid="transparent"
                     style={styles.input}
                     placeholder={'Enter email'}
-                    autoFocus={true}
+                    autoFocus={false}
                     autoCapitalize = 'none'
                     keyboardType={'email-address'}
                     onChangeText={ (text) => {  this.setState({email: text}) }}
@@ -151,7 +156,7 @@ class AuthScreen extends React.Component {
 styles = StyleSheet.create({
   container: {
         backgroundColor: 'white',
-        flex: 1
+        flex: 1,
   },
   input:{
         height: 40, 

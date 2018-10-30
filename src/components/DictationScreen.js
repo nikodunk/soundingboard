@@ -20,7 +20,9 @@ import Voice from 'react-native-voice';
 
 import Sound from 'react-native-sound';
 var Mixpanel = require('react-native-mixpanel');
+Mixpanel = Mixpanel.default
 Mixpanel.sharedInstanceWithToken('c72aabf24fb03673362eae05a8e5150a');
+
 
 Sound.setCategory('MultiRoute');
 
@@ -45,8 +47,6 @@ export default class VoiceNative extends React.Component {
         noInput: false,
         stopping: false
       };
-
-      AsyncStorage.removeItem('email')
 
       AsyncStorage.getItem('notes').then((notes) => {
                 if(notes === ''){

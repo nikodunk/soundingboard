@@ -62,7 +62,6 @@ class AuthLoadingScreen extends Component {
   }
 
 
-
   _validatePurchase = async() => {
     AsyncStorage.getItem('receipt').then((receipt) =>{
         // console.log(receipt)

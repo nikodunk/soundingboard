@@ -32,8 +32,7 @@ class SettingsScreen extends React.Component {
       
       componentDidMount() {
           AsyncStorage.getItem('email').then((res) => {
-            email = res
-            this.setState({email: email})
+            this.setState({email: res})
           })
       }
 
