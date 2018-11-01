@@ -418,7 +418,7 @@ export default class VoiceNative extends React.Component {
                               <Text
                                 style={[styles.button, {color: this.state.editing || this.state.recording ? 'lightgrey' : 'salmon'}]}>
                                 <FontAwesome>{Icons.trash} </FontAwesome>{'\n'}
-                                Delete
+                                gaggi
                               </Text>
                             </TouchableOpacity>
 
