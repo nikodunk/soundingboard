@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; };
@@ -51,6 +50,7 @@
 		AFAC3532AB2D4FB5BBCEAD1D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B140884C84114035926A2E99 /* CoreData.framework */; };
 		B080B93E985C4794BD97B425 /* libRNIap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77B829FC687C452894D05F26 /* libRNIap.a */; };
 		FA49AE0F35AF459D88DBA907 /* libRNSound.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 076B517422DD4DDA83EFE3ED /* libRNSound.a */; };
+		B1E24C71C51141B981105020 /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 72DAA710170648BCA632998F /* FontAwesome.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -462,6 +462,7 @@
 		ED8F1E529B64425083E2B214 /* RNIap.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNIap.xcodeproj; path = "../node_modules/react-native-iap/ios/RNIap.xcodeproj"; sourceTree = "<group>"; };
 		EEA3DBB18C044A56B2503E52 /* libRNReactNativeHapticFeedback.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNReactNativeHapticFeedback.a; sourceTree = "<group>"; };
 		F62DE646EEE34D62BECB356F /* RCTGoogleAnalyticsBridge.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RCTGoogleAnalyticsBridge.xcodeproj; path = "../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/RCTGoogleAnalyticsBridge.xcodeproj"; sourceTree = "<group>"; };
+		72DAA710170648BCA632998F /* FontAwesome.ttf */ = {isa = PBXFileReference; name = "FontAwesome.ttf"; path = "../assets/fonts/FontAwesome.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -675,6 +676,7 @@
 				D9B626EDBABB4A0C8D2AE6C6 /* Octicons.ttf */,
 				9B2106783CB3476BAA48663C /* SimpleLineIcons.ttf */,
 				D33371FA58614FE4A7635025 /* Zocial.ttf */,
+				72DAA710170648BCA632998F /* FontAwesome.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1431,6 +1433,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 				91399132217AD4EE00B774EB /* blip.m4a in Resources */,
+				B1E24C71C51141B981105020 /* FontAwesome.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

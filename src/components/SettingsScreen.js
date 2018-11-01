@@ -112,7 +112,7 @@ class SettingsScreen extends React.Component {
 
                           <Text></Text>
                           <Text style={{fontSize: 15, textAlign: 'center', color: 'grey'}}>
-                              You are currently enrolled in the $1.99/mo plan. Cancel your subscription any time in the iOS "Settings" App under "Subscriptions".
+                              You are currently enrolled in the $3.99/mo plan. Cancel your subscription any time in the iOS "Settings" App under "iTunes & App Store" > "Apple ID" > "View Apple ID" > "Subscriptions".
                           </Text>
                           <Text></Text>
                           <Text></Text>

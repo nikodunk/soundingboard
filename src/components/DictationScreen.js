@@ -15,7 +15,9 @@ import {
   Clipboard
 } from 'react-native';
 import Button from 'react-native-button';
+
 import * as Animatable from 'react-native-animatable';
+import FontAwesome, { Icons } from 'react-native-fontawesome';
 
 
 import Voice from 'react-native-voice';
@@ -58,7 +60,6 @@ export default class VoiceNative extends React.Component {
         previousNote: null,
         noInput: false,
         stopping: false,
-
         unlocked: false,
         loading: true,
         subscribed: false,
@@ -378,8 +379,9 @@ export default class VoiceNative extends React.Component {
                       <Text style={style={textAlign: 'center', padding: 8}}>
                         {this.state.storedNote}
                         {'\u00A0'}
-                        {this.state.recording === true ? this.state.results[0] : null }
-                        {this.state.storedNote || this.state.results[0] ? null : <Text style={{color: 'lightgrey'}}> {'\n'} Press "Dictate" below and speak your note. {'\n'}{'\n'}Say commands like "Period", "Questionmark", "Semicolon", "New Line" etc. to structure your note.</Text>}
+                        {this.state.recording ? this.state.results[0] : null }
+                        {this.state.storedNote || this.state.results[0] ? null : <Text style={{color: 'grey'}}> {'\n'} Press "Start Dictation" below and speak your note. {'\n'}{'\n'}Special commands:{'\n'}"Period"{'\n'}"Questionmark"{'\n'}"Semicolon"{'\n'}"New Line"</Text>}
+                        {this.state.recording && !this.state.results[0] ? <Text style={{color: 'red'}}>{'\n'}{'\n'}Go ahead! I'm listening</Text> : null}
                       </Text>
                     </ScrollView> 
                   }
@@ -436,7 +438,10 @@ export default class VoiceNative extends React.Component {
                               disabled={ this.state.editing || this.state.recording }
                               styleDisabled={styles.borderDisabled}
                               onPress={this.email.bind(this)}
-                              >Send</Button>
+                              >
+                              Send
+                            </Button>
+
 
                         </View>
                       </Animatable.View>
@@ -457,16 +462,15 @@ export default class VoiceNative extends React.Component {
                 {!this.state.editing ?
                       <Animatable.View animation="slideInUp" duration={400} easing="ease-out">
                         <Button 
-                          style={[{backgroundColor: '#2191fb' }, styles.bottomButton]}
+                          style={[{backgroundColor: this.state.recording ? 'red' : '#2191fb' }, styles.bottomButton]}
                           disabled={this.state.stopping || !this.state.unlocked }
                           styleDisabled={styles.bottomButtonDisabled}
                           onPress={this._toggleRecognizing.bind(this)}
-                          >{this.state.recording === false ? "Start Dictation" : "Stop"}</Button>
+                          >{this.state.recording === false ? "Start Dictation" : "Recording! Touch to Stop."}</Button>
                       </Animatable.View>
                       : null
                 }
 
-                
 
                 {!this.state.unlocked ? 
 
@@ -481,8 +485,6 @@ export default class VoiceNative extends React.Component {
               </View>
             }
             
-
-
           
         </KeyboardAvoidingView>
       );
