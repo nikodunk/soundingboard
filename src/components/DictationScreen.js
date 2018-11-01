@@ -1,5 +1,4 @@
 import React from 'react';
-
 import {
   StyleSheet,
   Text,
@@ -11,26 +10,39 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Vibration,
-  ScrollView
+  ScrollView,
+  ActivityIndicator,
+  Clipboard
 } from 'react-native';
 import Button from 'react-native-button';
 import * as Animatable from 'react-native-animatable';
 
+
 import Voice from 'react-native-voice';
 
 import Sound from 'react-native-sound';
-var Mixpanel = require('react-native-mixpanel');
-Mixpanel = Mixpanel.default
-Mixpanel.sharedInstanceWithToken('c72aabf24fb03673362eae05a8e5150a');
-
-
 Sound.setCategory('MultiRoute');
-
 var blip = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
   if (error) {
     console.log('failed to load the sound', error);
     return;
   }
+});
+
+var Mixpanel = require('react-native-mixpanel');
+Mixpanel = Mixpanel.default
+Mixpanel.sharedInstanceWithToken('c72aabf24fb03673362eae05a8e5150a');
+
+
+
+import * as RNIap from 'react-native-iap';
+const itemSkus = Platform.select({
+  ios: [
+    'com.bigset.monthly'
+  ],
+  // android: [
+  //   'com.example.coins100'
+  // ]
 });
 
 
@@ -45,7 +57,12 @@ export default class VoiceNative extends React.Component {
         editing: false,
         previousNote: null,
         noInput: false,
-        stopping: false
+        stopping: false,
+
+        unlocked: false,
+        loading: true,
+        subscribed: false,
+        remaining: 5, //for view purposes only!!!
       };
 
       AsyncStorage.getItem('notes').then((notes) => {
@@ -64,14 +81,13 @@ export default class VoiceNative extends React.Component {
   }
 
   componentDidMount() {
+      // AsyncStorage.removeItem('remainingtrials')
       Mixpanel.track("DictationScreen Loaded");
+      this._getProducts()
       AsyncStorage.getItem('email').then((res) => {
-        email = res
-        this.setState({email: email})
+        this.setState({email: res})
       })
   }
-
-
 
 
   componentWillUnmount() {
@@ -98,9 +114,76 @@ export default class VoiceNative extends React.Component {
     }
 
 
+  // CHECK IF WE HAVE ANY AVAILABLE PURCHASES
+  async _getProducts() {
+    try {
+      const products = await RNIap.getProducts(itemSkus);
+      this.setState({ products });
+      console.log( products )
+      
+      // CHECK if already subscribed on AuthScreen and saved to var "receipt" in Asyncstorage
+      AsyncStorage.getItem('receipt').then((receipt) => {
+          // console.log(receipt)
+          const receiptBody = {
+            'receipt-data': receipt,
+            'password': '427e85d574e34185a6263a63eb2f6c20'
+          };
+
+          // CHECK whether there's a subscription, and unlock if there is
+          RNIap.validateReceiptIos(receiptBody, false).then((result) => {
+              console.log(result);
+              if(result.status == 0 || result.status == 21007){ 
+                  this.setState({unlocked: true})
+                  this.setState({loading: false})
+                  this.setState({subscribed: true})
+                }
+              else{ 
+                  this._checkTrial() 
+                  this.setState({loading: false})
+                }
+              
+          })
+      })
+
+    } catch(err) {
+      console.warn(err); // standardized err.code and err.message available
+    }
+  }
+
+
+
+  // CHECK IF STILL IN TRIAL
+  _checkTrial(){
+      AsyncStorage.getItem('remainingtrials').then((remainingtrials) => {
+          console.log(remainingtrials)
+          if(remainingtrials === null ){
+            console.log('first trial dictation!')
+            AsyncStorage.setItem('remainingtrials', '5')
+            this.setState({ unlocked: true, remaining: remainingtrials })
+            console.log(this.state.unlocked)
+          }
+          else if( 0 < remainingtrials && remainingtrials < 6 ){
+            console.log('trials remaining')
+            this.setState({ unlocked: true, remaining: remainingtrials })
+            console.log(this.state.unlocked)
+          }
+          else{
+            console.log('NO trials remaining')
+            this.setState({ unlocked: false, remaining: remainingtrials })
+            console.log(this.state.unlocked)
+          }
+      })
+  }
+
+  
+
+
+  // -----------------------------------------------------------------------------------------------------------------------
+
+
   // EVENT CALLED ONLY IF THERE ARE RESULTS AND WHEN FINAL RESULTS ARE IN BACK FROM SERVER – CAN BE DELAYED AFTER STOP
   onSpeechEnd(e) {
-      
+      Mixpanel.track("Recognition Successfully Ended");
       var newNote
       // CONCATENATE TO OLD NOTE IF THERE WAS AN EXISTING NOTE, OTHERWISE NEW NOTE
       this.state.storedNote ? newNote = this.state.storedNote + ' ' + this.state.results[0] : newNote = this.state.results[0] 
@@ -121,6 +204,7 @@ export default class VoiceNative extends React.Component {
 
   // START RECOGNITION
   async _startRecognition(e) {
+      Mixpanel.track("Recognition Started");
       this.state.previousNote !== null ? this.setState({previousNote: this.state.storedNote}) : this.setState({previousNote: this.state.storedNote})
 
       this.setState({
@@ -152,6 +236,16 @@ export default class VoiceNative extends React.Component {
               this.setState({noInput: false})
             }, 5000);
         }
+      
+      // REMOVE REMAINING TRIALS
+      if(!this.state.subscribed){
+        AsyncStorage.getItem('remainingtrials').then((res) => {
+          var newRemainingTrials = res - 1
+          AsyncStorage.setItem('remainingtrials', newRemainingTrials.toString() )
+          this._checkTrial()
+        })
+      }
+      
       
       
     }
@@ -186,6 +280,7 @@ export default class VoiceNative extends React.Component {
     }
 
   email(){
+    Mixpanel.track("Email Pressed");
     AsyncStorage.getItem('email').then((email) => {
       // tracker.trackEvent("buttonexport", "exported email");
       Platform.OS === 'ios'
@@ -195,12 +290,14 @@ export default class VoiceNative extends React.Component {
   }
 
   delete(){
+    Mixpanel.track("Delete Pressed");
     this.setState({previousNote: this.state.storedNote})
     AsyncStorage.removeItem('notes')
     this.setState({storedNote: ''})
   }
 
   undo(){
+    Mixpanel.track("Undo Pressed");
     if (this.state.previousNote !== null ){ 
         AsyncStorage.setItem('notes', JSON.stringify(this.state.previousNote)); 
         destroyedNote = this.state.storedNote
@@ -210,7 +307,13 @@ export default class VoiceNative extends React.Component {
     else return
   }
 
+  copy(){
+    Mixpanel.track("Copy Pressed");
+    Clipboard.setString(this.state.storedNote);
+  }
+
   _toggleEditing(){
+    Mixpanel.track("Edit Pressed");
     if (this.state.editing === true){
 
       // STOP EDITING AND SAVE
@@ -219,7 +322,6 @@ export default class VoiceNative extends React.Component {
       this.setState({storedNote: this.state.editedText})
     }
     if (this.state.editing === false){
-      
 
       // START EDITING
       this.setState({editing: true})
@@ -230,34 +332,38 @@ export default class VoiceNative extends React.Component {
   }
 
 
+  
+
+
   render () {
       return (
+
         <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
             
             <View style={styles.topBar}>
                   <Button
-                    style={styles.button}
+                    style={ styles.button }
                     disabled={this.state.recording || this.state.editing }
                     onPress={() => this.props.navigation.navigate('Settings')}
                     >Settings</Button>
 
-                  <Text style={{padding: 8, fontSize: 20}}>Transcript     </Text>
 
                   {!this.state.editing ? 
                     <Button
-                      style={styles.button}
+                      style={ styles.button }
                       disabled={this.state.recording || !this.state.storedNote}
                       onPress={this._toggleEditing.bind(this)}
                       >Edit</Button>
                     :
                     <Button
-                      style={styles.button} 
+                      style={ styles.button }
                       onPress={this._toggleEditing.bind(this)}
                       >Done</Button>
                   }
             </View>
 
             <View style={styles.transcript}>
+
 
                   { this.state.editing ? 
                     <TextInput
@@ -287,51 +393,92 @@ export default class VoiceNative extends React.Component {
                     null
                   }
 
+                  
+
 
             </View>
             
-            
-            { this.state.storedNote && !this.state.editing ?
-                  <Animatable.View animation="slideInUp" duration={400} easing="ease-out">
-                    <View style={styles.optionBar}>
-                        
-                        <Button 
-                          style={[{color: 'salmon'}, styles.button]}
-                          disabled={this.state.editing || this.state.recording }
-                          onPress={this.delete.bind(this)}
-                          >Delete</Button>
+            {this.state.loading ? <ActivityIndicator style={{marginBottom: 30}} color="black" /> : 
+              <View>
+                
+                
 
-                        
-                        <Button 
-                          style={styles.button}
-                          disabled={this.state.editing || this.state.recording }
-                          onPress={this.undo.bind(this)}
-                          >Undo</Button>
+                { this.state.storedNote && !this.state.editing ?
+                      <Animatable.View animation="slideInUp" duration={400} easing="ease-out">
+                        <View style={styles.optionBar}>
+                            
+                            <Button 
+                              style={[{color: 'salmon', borderColor: 'salmon'}, styles.button, styles.border]}
+                              disabled={this.state.editing || this.state.recording }
+                              styleDisabled={[styles.borderDisabled, {color: 'lightgrey'}]}
+                              onPress={this.delete.bind(this)}
+                              >Delete</Button>
 
-                        
-                        <Button
-                          style={styles.button}
-                          disabled={ this.state.editing || this.state.recording }
-                          onPress={this.email.bind(this)}
-                          >Export</Button>
+                            
+                            <Button 
+                              style={[{borderColor: '#2191fb'}, styles.button, styles.border]}
+                              disabled={this.state.editing || this.state.recording }
+                              styleDisabled={styles.borderDisabled}
+                              onPress={this.undo.bind(this)}
+                              >Undo</Button>
 
-                    </View>
+
+                            <Button 
+                              style={[{borderColor: '#2191fb'}, styles.button, styles.border]}
+                              disabled={this.state.editing || this.state.recording }
+                              styleDisabled={styles.borderDisabled}
+                              onPress={this.copy.bind(this)}
+                              >Copy</Button>
+
+                            
+                            <Button
+                              style={[{borderColor: '#2191fb'}, styles.button, styles.border]}
+                              disabled={ this.state.editing || this.state.recording }
+                              styleDisabled={styles.borderDisabled}
+                              onPress={this.email.bind(this)}
+                              >Send</Button>
+
+                        </View>
+                      </Animatable.View>
+                      :
+                      null 
+                }
+                
+                { !this.state.subscribed ? 
+                  <Animatable.View animation="slideInUp" duration={400} easing="ease-out" >
+                    <Text style={{color: '#2191fb', textAlign: 'center', paddingBottom: 5}}>
+                      Remaining Free Dictations: {this.state.remaining}
+                    </Text> 
                   </Animatable.View>
                   :
-                  null 
-            }
-            
+                  null
+                }
 
-            {!this.state.editing ?
-                  <Animatable.View animation="slideInUp" duration={400} easing="ease-out" style={styles.bottomBar}>
-                    <Button
-                      style={styles.bottomButton}
-                      disabled={this.state.stopping }
-                      styleDisabled={styles.bottomButtonDisabled}
-                      onPress={this._toggleRecognizing.bind(this)}
-                      >{this.state.recording === false ? "Dictate" : "Stop"}</Button>
-                  </Animatable.View>
-                  : null
+                {!this.state.editing ?
+                      <Animatable.View animation="slideInUp" duration={400} easing="ease-out">
+                        <Button 
+                          style={[{backgroundColor: '#2191fb' }, styles.bottomButton]}
+                          disabled={this.state.stopping || !this.state.unlocked }
+                          styleDisabled={styles.bottomButtonDisabled}
+                          onPress={this._toggleRecognizing.bind(this)}
+                          >{this.state.recording === false ? "Start Dictation" : "Stop"}</Button>
+                      </Animatable.View>
+                      : null
+                }
+
+                
+
+                {!this.state.unlocked ? 
+
+                    <Animatable.View animation="slideInUp" duration={400} easing="ease-out" >
+                      <Button
+                        style={[{backgroundColor: '#2191fb'}, styles.bottomButton]}
+                        styleDisabled={styles.bottomButtonDisabled}
+                        onPress={() => this.props.navigation.navigate('AuthScreen')}
+                        >Start Free Trial to continue</Button>
+                    </Animatable.View> : null
+                }
+              </View>
             }
             
 
@@ -344,13 +491,12 @@ export default class VoiceNative extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-      marginTop: 20,
       flex: 1,
       flexDirection: 'column'
     },
     topBar:{
       flexDirection: 'row', 
-      justifyContent: 'space-between',
+      justifyContent: 'space-between'
     },
     transcript: {
       flex: 1,
@@ -358,7 +504,7 @@ const styles = StyleSheet.create({
     button:{
       padding: 8, 
       fontSize: 18, 
-      fontWeight: '400',
+      fontWeight: '400'
     },
     textInput:{
       flex: 1,
@@ -372,13 +518,15 @@ const styles = StyleSheet.create({
       },
     optionBar:{
       flexDirection: 'row', 
-      justifyContent: 'space-around'
+      justifyContent: 'space-around',
+      marginBottom: 3,
+      marginTop: 3
     },
     bottomButton:{
       color: 'white',
       padding: 15,
       margin: '4%',
-      backgroundColor: '#2191fb', 
+      marginTop: 0,
       width: '92%',
       borderWidth: 0,
       borderRadius: 10,
@@ -397,6 +545,27 @@ const styles = StyleSheet.create({
       overflow:'hidden',
       fontSize: 18,
       fontWeight: '600'
+    },
+    border:{
+      borderRadius: 8, 
+      borderWidth: 1, 
+      overflow: 'hidden', 
+      margin: 5,
+      paddingLeft: 10,
+      paddingRight: 10,
+      paddingTop: 6,
+      paddingBottom: 6,
+    },
+    borderDisabled:{
+      borderRadius: 8, 
+      borderWidth: 1, 
+      overflow: 'hidden', 
+      margin: 5,
+      paddingLeft: 10,
+      paddingRight: 10,
+      paddingTop: 6,
+      paddingBottom: 6,
+      borderColor: 'lightgrey'
     }
 });
 

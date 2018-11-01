@@ -14,8 +14,6 @@ import {  StyleSheet,
           Platform,
           Keyboard,
           Button} from 'react-native';
-import { connect } from 'react-redux';
-import { alterUsergroup } from '../actions/actions';
 import styles from './_styles'
 import * as Animatable from 'react-native-animatable';
 
@@ -55,7 +53,7 @@ class SettingsScreen extends React.Component {
                      barStyle="dark-content"
                    />
                         
-                  <View style={{flexDirection: 'row', marginTop: 20, justifyContent: 'space-between', width: '100%'}}>
+                  <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
                     <Button
                       onPress={() => this.props.navigation.navigate('DictationScreen')}
                       title={"Back"}
@@ -161,4 +159,4 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsScreen);
+export default SettingsScreen;

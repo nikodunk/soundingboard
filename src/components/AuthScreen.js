@@ -1,20 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View, AsyncStorage, TextInput, TouchableOpacity, Alert, ImageBackground, ActivityIndicator, Image, Platform, ScrollView, KeyboardAvoidingView, Linking } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+
 import * as Animatable from 'react-native-animatable';
+import Button from 'react-native-button';
+
 var Mixpanel = require('react-native-mixpanel');
 Mixpanel = Mixpanel.default
 Mixpanel.sharedInstanceWithToken('c72aabf24fb03673362eae05a8e5150a');
 
 
 import * as RNIap from 'react-native-iap';
-
-
-import Button from 'react-native-button';
-
-
-
-
 const itemSkus = Platform.select({
   ios: [
     'com.bigset.monthly'
@@ -23,6 +18,8 @@ const itemSkus = Platform.select({
   //   'com.example.coins100'
   // ]
 });
+
+
 
 
 
@@ -70,7 +67,6 @@ class AuthScreen extends React.Component {
         
       RNIap.buyProduct('com.bigset.monthly').then(purchase => {
         
-
         AsyncStorage.setItem('receipt', purchase.transactionReceipt )
         // console.log('SUCCESS!! ', purchase)
         this.props.navigation.navigate('SignedInRouter')
@@ -87,13 +83,46 @@ class AuthScreen extends React.Component {
   }
 
 
+  _getPurchases = async() => {
+    try {
+      const purchases = await RNIap.getAvailablePurchases();
+      console.log(purchases)
+      if(purchases){
+        purchases.forEach(purchase => {
+          if (purchase.productId == 'com.bigset.monthly') {
+            AsyncStorage.setItem('receipt', purchase.transactionReceipt )
+            // console.log('SUCCESS!! ', purchase)
+            this.props.navigation.navigate('SignedInRouter')
+          } 
+          else {
+            return
+          }
+        })
+        Alert.alert('Restore Successful', 'You successfully restored your subscription');
+      }
+      else{
+        Alert.alert('Restore Unsuccessful', 'It appears you have no previous subscriptions');
+      }
+    } catch(err) {
+      console.warn(err); // standardized err.code and err.message available
+      Alert.alert(err.message);
+    }
+  }
+
+
   render() {
     return (
       <View style={styles.container}>
+        <View style={styles.topBar}>
+              <Button
+                style={[styles.button]}
+                onPress={() => this.props.navigation.navigate('DictationScreen')}
+                >Back</Button>
+        </View>
         <View style={{ textAlign: 'center', alignItems: 'center', flex: .7}}>
       
           <Animatable.View animation="fadeIn" duration={1000}>
-            <Text style={{fontSize: 24, marginTop: 30, color: '#2191fb', textAlign: 'center'}}>
+            <Text style={{fontSize: 24, color: '#2191fb', textAlign: 'center'}}>
                 Save an hour of note-typing every day.
             </Text>
 
@@ -128,7 +157,8 @@ class AuthScreen extends React.Component {
                               • Privacy Policy{'\n'}
                             </Text>
               </ScrollView>
-              <View style={{borderRadius: 10, borderWidth: 1, borderColor: '#2191fb', overflow: 'hidden', margin: 5, marginTop: 0}}>
+
+              <View style={styles.border}>
                 <TextInput 
                     underlineColorAndroid="transparent"
                     style={styles.input}
@@ -139,11 +169,20 @@ class AuthScreen extends React.Component {
                     onChangeText={ (text) => {  this.setState({email: text}) }}
                 />
                 <Button 
-                  style={styles.bottomButton}
+                  style={[{backgroundColor: '#2191fb' }, styles.bottomButton]}
                   onPress={() => this._onPress(this.state.email)} >
                   Start free trial, then $3.99/month
                 </Button>
               </View>
+
+              <View style={{borderRadius: 10, borderWidth: 1, borderColor: '#2191fb', overflow: 'hidden', margin: 5, marginTop: 0}}>
+                <Button
+                  style={styles.button}
+                  onPress={() => this._getPurchases()}>
+                  or restore purchase
+                </Button>
+              </View>
+
             </KeyboardAvoidingView>
           }
       
@@ -155,9 +194,14 @@ class AuthScreen extends React.Component {
 
 styles = StyleSheet.create({
   container: {
-        backgroundColor: 'white',
-        flex: 1,
-  },
+      flex: 1,
+      flexDirection: 'column',
+      backgroundColor: 'white'
+    },
+    topBar:{
+      flexDirection: 'row', 
+      justifyContent: 'space-between'
+    },
   input:{
         height: 40, 
         backgroundColor:'white',
@@ -168,12 +212,25 @@ styles = StyleSheet.create({
   bottomButton:{
         color: 'white',
         padding: 15,
-        backgroundColor: '#2191fb', 
+        
         borderWidth: 0,
         overflow:'hidden',
         fontSize: 18,
         fontWeight: '600',
         height: 50, 
+  },
+  button:{
+    padding: 8, 
+    fontSize: 18, 
+    fontWeight: '400',
+  },
+  border:{
+    borderRadius: 10, 
+    borderWidth: 1, 
+    borderColor: '#2191fb', 
+    overflow: 'hidden', 
+    margin: 5, 
+    marginTop: 0
   }
 })
 

@@ -47,36 +47,7 @@ class AuthLoadingScreen extends Component {
   }
 
 
-  // CHECK IF WE HAVE ANY AVAILABLE PURCHASES
-  async _getProducts() {
-    try {
-      const products = await RNIap.getProducts(itemSkus);
-      this.setState({ products });
-      console.log( products )
-      
-      this._validatePurchase()
 
-    } catch(err) {
-      console.warn(err); // standardized err.code and err.message available
-    }
-  }
-
-
-  _validatePurchase = async() => {
-    AsyncStorage.getItem('receipt').then((receipt) =>{
-        // console.log(receipt)
-        const receiptBody = {
-          'receipt-data': receipt,
-          'password': '427e85d574e34185a6263a63eb2f6c20'
-        };
-        RNIap.validateReceiptIos(receiptBody, false).then((result) => {
-            console.log(result);
-            this.props.navigation.navigate(result.status == 0 ? 'SignedInRouter' : 'Auth');
-        })
-        
-    })
-    
-  }
 
 
   componentWillUnmount() {
@@ -91,8 +62,8 @@ class AuthLoadingScreen extends Component {
     // This will switch to the App screen or Auth screen and this loading
     // screen will be unmounted and thrown away.
     // this.props.navigation.navigate(userToken && ? 'SignedInRouter' : 'Auth');
-
-    this._getProducts()
+    this.props.navigation.navigate('SignedInRouter');
+    // this._getProducts()
   };
 
 

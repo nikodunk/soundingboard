@@ -3,7 +3,7 @@
  import {NavigationActions} from 'react-navigation';
  import {ScrollView, Text, View, TouchableOpacity, AsyncStorage, Image, Platform, Linking} from 'react-native';
  import styles from './_styles'
- import { connect } from 'react-redux';
+
  import DictationScreen from './DictationScreen'
  import { DrawerActions } from 'react-navigation';
 import * as Animatable from 'react-native-animatable';
@@ -128,4 +128,4 @@ import * as Animatable from 'react-native-animatable';
       };
     };
 
-    export default connect(mapStateToProps, mapDispatchToProps)(SideMenu);
+    export default SideMenu;
