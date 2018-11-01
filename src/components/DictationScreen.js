@@ -12,7 +12,8 @@ import {
   Vibration,
   ScrollView,
   ActivityIndicator,
-  Clipboard
+  Clipboard,
+  TouchableOpacity
 } from 'react-native';
 import Button from 'react-native-button';
 
@@ -251,7 +252,7 @@ export default class VoiceNative extends React.Component {
       
     }
 
-
+  
 
   // TOGGLE RECOGNITION
   _toggleRecognizing(e) {
@@ -409,38 +410,58 @@ export default class VoiceNative extends React.Component {
                       <Animatable.View animation="slideInUp" duration={400} easing="ease-out">
                         <View style={styles.optionBar}>
                             
-                            <Button 
-                              style={[{color: 'salmon', borderColor: 'salmon'}, styles.button, styles.border]}
-                              disabled={this.state.editing || this.state.recording }
-                              styleDisabled={[styles.borderDisabled, {color: 'lightgrey'}]}
+                            <TouchableOpacity 
+                              style={[{ borderColor: 'salmon'}, 
+                                      this.state.editing || this.state.recording ? styles.borderDisabled : styles.border]}
                               onPress={this.delete.bind(this)}
-                              >Delete</Button>
+                              disabled={this.state.editing || this.state.recording }>
+                              <Text
+                                style={[styles.button, {color: this.state.editing || this.state.recording ? 'lightgrey' : 'salmon'}]}>
+                                <FontAwesome>{Icons.trash} </FontAwesome>{'\n'}
+                                Delete
+                              </Text>
+                            </TouchableOpacity>
 
                             
-                            <Button 
-                              style={[{borderColor: '#2191fb'}, styles.button, styles.border]}
-                              disabled={this.state.editing || this.state.recording }
-                              styleDisabled={styles.borderDisabled}
+                            <TouchableOpacity 
+                              style={[{ borderColor: '#2191fb'}, 
+                                      this.state.editing || this.state.recording ? styles.borderDisabled : styles.border]}
                               onPress={this.undo.bind(this)}
-                              >Undo</Button>
+                              disabled={this.state.editing || this.state.recording }>
+                              <Text
+                                style={[styles.button, {color: this.state.editing || this.state.recording ? 'lightgrey' : '#2191fb'}]}>
+                                <FontAwesome>{Icons.undo} </FontAwesome>{'\n'}
+                                Undo
+                              </Text>
+                            </TouchableOpacity>
 
 
-                            <Button 
-                              style={[{borderColor: '#2191fb'}, styles.button, styles.border]}
-                              disabled={this.state.editing || this.state.recording }
-                              styleDisabled={styles.borderDisabled}
+
+                            <TouchableOpacity 
+                              style={[{ borderColor: '#2191fb'}, 
+                                      this.state.editing || this.state.recording ? styles.borderDisabled : styles.border]}
                               onPress={this.copy.bind(this)}
-                              >Copy</Button>
+                              disabled={this.state.editing || this.state.recording }>
+                              <Text
+                                style={[styles.button, {color: this.state.editing || this.state.recording ? 'lightgrey' : '#2191fb'}]}>
+                                <FontAwesome>{Icons.clone} </FontAwesome>{'\n'}
+                                Copy
+                              </Text>
+                            </TouchableOpacity>
+
 
                             
-                            <Button
-                              style={[{borderColor: '#2191fb'}, styles.button, styles.border]}
-                              disabled={ this.state.editing || this.state.recording }
-                              styleDisabled={styles.borderDisabled}
+                            <TouchableOpacity 
+                              style={[{ borderColor: '#2191fb'}, 
+                                      this.state.editing || this.state.recording ? styles.borderDisabled : styles.border]}
                               onPress={this.email.bind(this)}
-                              >
-                              Send
-                            </Button>
+                              disabled={this.state.editing || this.state.recording }>
+                              <Text
+                                style={[styles.button, {color: this.state.editing || this.state.recording ? 'lightgrey' : '#2191fb'}]}>
+                                <FontAwesome>{Icons.envelope} </FontAwesome>{'\n'}
+                                Email
+                              </Text>
+                            </TouchableOpacity>
 
 
                         </View>
@@ -452,7 +473,7 @@ export default class VoiceNative extends React.Component {
                 { !this.state.subscribed ? 
                   <Animatable.View animation="slideInUp" duration={400} easing="ease-out" >
                     <Text style={{color: '#2191fb', textAlign: 'center', paddingBottom: 5}}>
-                      Remaining Free Dictations: {this.state.remaining}
+                      Remaining Test Runs: {this.state.remaining}
                     </Text> 
                   </Animatable.View>
                   :
@@ -461,12 +482,19 @@ export default class VoiceNative extends React.Component {
 
                 {!this.state.editing ?
                       <Animatable.View animation="slideInUp" duration={400} easing="ease-out">
-                        <Button 
-                          style={[{backgroundColor: this.state.recording ? 'red' : '#2191fb' }, styles.bottomButton]}
-                          disabled={this.state.stopping || !this.state.unlocked }
-                          styleDisabled={styles.bottomButtonDisabled}
+                        
+                        <TouchableOpacity 
+                          style={[{backgroundColor: this.state.recording ? 'red' : '#2191fb' },
+                                  this.state.stopping || !this.state.unlocked ? styles.bottomButtonDisabled : styles.bottomButton]}
                           onPress={this._toggleRecognizing.bind(this)}
-                          >{this.state.recording === false ? "Start Dictation" : "Recording! Touch to Stop."}</Button>
+                          disabled={this.state.stopping || !this.state.unlocked }>
+                          <Text
+                            style={{color: 'white', fontSize: 18, fontWeight: '600', textAlign: 'center'}}>
+                            <FontAwesome>{Icons.microphone} </FontAwesome>
+                            {this.state.recording === false ? "Start Dictation" : "Recording... Touch to Stop."}
+                          </Text>
+                        </TouchableOpacity>
+
                       </Animatable.View>
                       : null
                 }
@@ -506,7 +534,8 @@ const styles = StyleSheet.create({
     button:{
       padding: 8, 
       fontSize: 18, 
-      fontWeight: '400'
+      fontWeight: '400',
+      textAlign: 'center'
     },
     textInput:{
       flex: 1,
@@ -522,10 +551,11 @@ const styles = StyleSheet.create({
       flexDirection: 'row', 
       justifyContent: 'space-around',
       marginBottom: 3,
-      marginTop: 3
+      marginTop: 3,
+      marginLeft: '3%',
+      marginRight: '3%'
     },
     bottomButton:{
-      color: 'white',
       padding: 15,
       margin: '4%',
       marginTop: 0,
@@ -533,11 +563,8 @@ const styles = StyleSheet.create({
       borderWidth: 0,
       borderRadius: 10,
       overflow:'hidden',
-      fontSize: 18,
-      fontWeight: '600'
     },
     bottomButtonDisabled:{
-      color: 'white',
       padding: 15,
       margin: '4%',
       backgroundColor: 'lightgrey', 
@@ -545,28 +572,18 @@ const styles = StyleSheet.create({
       borderWidth: 0,
       borderRadius: 10,
       overflow:'hidden',
-      fontSize: 18,
-      fontWeight: '600'
     },
     border:{
       borderRadius: 8, 
       borderWidth: 1, 
       overflow: 'hidden', 
       margin: 5,
-      paddingLeft: 10,
-      paddingRight: 10,
-      paddingTop: 6,
-      paddingBottom: 6,
     },
     borderDisabled:{
       borderRadius: 8, 
       borderWidth: 1, 
       overflow: 'hidden', 
       margin: 5,
-      paddingLeft: 10,
-      paddingRight: 10,
-      paddingTop: 6,
-      paddingBottom: 6,
       borderColor: 'lightgrey'
     }
 });
