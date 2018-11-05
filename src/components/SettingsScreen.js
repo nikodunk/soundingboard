@@ -17,6 +17,13 @@ import {  StyleSheet,
 import styles from './_styles'
 import * as Animatable from 'react-native-animatable';
 
+
+var Mixpanel = require('react-native-mixpanel');
+Mixpanel = Mixpanel.default
+Mixpanel.sharedInstanceWithToken('c72aabf24fb03673362eae05a8e5150a');
+
+
+
 class SettingsScreen extends React.Component {
       
 
@@ -24,7 +31,8 @@ class SettingsScreen extends React.Component {
         super(props);
         this.state = {
           usergroup: '',
-          email: ''
+          email: '',
+          subscribed: false
         };
       }
       
@@ -32,6 +40,12 @@ class SettingsScreen extends React.Component {
           AsyncStorage.getItem('email').then((res) => {
             this.setState({email: res})
           })
+
+          AsyncStorage.getItem('subscribed').then((res) => {
+            this.setState({subscribed: res})
+          })
+
+          Mixpanel.track("Settings Loaded");
       }
 
 
@@ -111,9 +125,14 @@ class SettingsScreen extends React.Component {
                           <Text></Text>
 
                           <Text></Text>
-                          <Text style={{fontSize: 15, textAlign: 'center', color: 'grey'}}>
+
+                          {this.state.subscribed ?
+                            <Text style={{fontSize: 15, textAlign: 'center', color: 'grey'}}>
                               You are currently enrolled in the $3.99/mo plan. Cancel your subscription any time in the iOS "Settings" App under "iTunes & App Store" > "Apple ID" > "View Apple ID" > "Subscriptions".
-                          </Text>
+                            </Text>
+                            :
+                            null
+                          }
                           <Text></Text>
                           <Text></Text>
 

@@ -85,7 +85,11 @@ export default class VoiceNative extends React.Component {
   componentDidMount() {
       // AsyncStorage.removeItem('remainingtrials')
       Mixpanel.track("DictationScreen Loaded");
+      
+      // check if subscribed and save for settings screen
       this._getProducts()
+
+      // get email
       AsyncStorage.getItem('email').then((res) => {
         this.setState({email: res})
       })
@@ -138,6 +142,7 @@ export default class VoiceNative extends React.Component {
                   this.setState({unlocked: true})
                   this.setState({loading: false})
                   this.setState({subscribed: true})
+                  AsyncStorage.setItem('subscribed', 'true')
                 }
               else{ 
                   this._checkTrial() 
@@ -179,27 +184,35 @@ export default class VoiceNative extends React.Component {
 
   
 
-
+  // RECOGNITION METHODS
   // -----------------------------------------------------------------------------------------------------------------------
 
 
-  // EVENT CALLED ONLY IF THERE ARE RESULTS AND WHEN FINAL RESULTS ARE IN BACK FROM SERVER – CAN BE DELAYED AFTER STOP
-  onSpeechEnd(e) {
-      Mixpanel.track("Recognition Successfully Ended");
-      var newNote
-      // CONCATENATE TO OLD NOTE IF THERE WAS AN EXISTING NOTE, OTHERWISE NEW NOTE
-      this.state.storedNote ? newNote = this.state.storedNote + ' ' + this.state.results[0] : newNote = this.state.results[0] 
+  // MASTER TOGGLE RECOGNITION
+  _toggleRecognizing(e) {
+      if (this.state.recording === false) { 
+        
+        blip.play();
+        // Vibration.vibrate()
 
-      // SAVE TO STATE AND TO DISK
-      AsyncStorage.setItem('notes', JSON.stringify(newNote))
-      this.setState({ 'storedNote': newNote });
-      
+        this._startRecognition(e);
 
-      this.setState({
-        results: [],
-        recording: false,
-        stopping: false
-      });
+        setInterval(() => { 
+            if (this.state.recording === true){
+
+                // this._stopRecognition(e)                
+                this._continueRecognition(e); 
+                
+              }
+         }, 55000);
+       }
+      else{
+        this._stopRecognition(e)
+        this.setState({continuing: false})
+        blip.play();
+        Vibration.vibrate()
+        
+       }
     }
 
 
@@ -222,6 +235,18 @@ export default class VoiceNative extends React.Component {
       }
     }
 
+
+
+  async _continueRecognition(e){
+      
+      // blip.play();
+      this._stopRecognition(e)
+      this.setState({continuing: true})
+
+  }
+
+
+
   // STOP RECOGNITION
   async _stopRecognition(e) {
       try {
@@ -229,57 +254,60 @@ export default class VoiceNative extends React.Component {
       } catch (e) {
         console.error(e);
       }
-      this.setState({stopping: true})
-
-      // CASE UNDEFINED
-      if (this.state.results[0] === undefined){
-          this.setState({noInput: true, recording: false, stopping: false})
-          setTimeout(() => { 
-              this.setState({noInput: false})
-            }, 5000);
-        }
       
-      // REMOVE REMAINING TRIALS
-      if(!this.state.subscribed){
-        AsyncStorage.getItem('remainingtrials').then((res) => {
-          var newRemainingTrials = res - 1
-          AsyncStorage.setItem('remainingtrials', newRemainingTrials.toString() )
-          this._checkTrial()
-        })
+
+      // ONLY IF NOT CONTINUING AKA REALLY STOPPING
+      if(!this.state.continuing){
+
+        this.setState({stopping: true})
+
+        // CASE UNDEFINED
+        if (this.state.results[0] === undefined){
+            this.setState({noInput: true, recording: false, stopping: false})
+            setTimeout(() => { 
+                this.setState({noInput: false})
+              }, 5000);
+          }
+        
+        // REMOVE REMAINING TRIALS
+        if(!this.state.subscribed){
+          AsyncStorage.getItem('remainingtrials').then((res) => {
+            var newRemainingTrials = res - 1
+            AsyncStorage.setItem('remainingtrials', newRemainingTrials.toString() )
+            this._checkTrial()
+          })
+        }
       }
       
+    }
+
+
+
+  // ON FINAL RESULTS ARE IN – EVENT CALLED ONLY IF THERE ARE RESULTS AND WHEN FINAL RESULTS ARE IN BACK FROM SERVER – CAN BE DELAYED AFTER STOP, DEPENDING ON CONNECTION SPEED
+  onSpeechEnd(e) {
+      Mixpanel.track("Recognition Successfully Ended");
+      var newNote
+      // CONCATENATE TO OLD NOTE IF THERE WAS AN EXISTING NOTE, OTHERWISE NEW NOTE
+      this.state.storedNote ? newNote = this.state.storedNote + ' ' + this.state.results[0] : newNote = this.state.results[0] 
+
+      // SAVE TO STATE AND TO DISK
+      AsyncStorage.setItem('notes', JSON.stringify(newNote))
+      this.setState({ 'storedNote': newNote });
       
-      
+
+      this.setState({
+        results: [],
+        recording: false,
+        stopping: false
+      });
+
+      if(this.state.continuing){this._startRecognition(e)}
+
     }
 
   
-
-  // TOGGLE RECOGNITION
-  _toggleRecognizing(e) {
-      if (this.state.recording === false) { 
-        
-        // Play the sound with an onEnd callback
-        blip.play();
-        // Vibration.vibrate()
-
-        this._startRecognition(e);
-        setTimeout(() => { 
-            if (this.state.recording === true){
-                this._stopRecognition(e); 
-                
-                blip.play();
-
-              }
-         }, 55000);
-       }
-      else{
-        this._stopRecognition(e)
-        
-        blip.play();
-        Vibration.vibrate()
-        
-       }
-    }
+  // OTHER METHODS
+  // -----------------------------------------------------------------------------------------------------------------------
 
   email(){
     Mixpanel.track("Email Pressed");
@@ -333,8 +361,10 @@ export default class VoiceNative extends React.Component {
     
   }
 
-
   
+
+  // VIEW
+  // -----------------------------------------------------------------------------------------------------------------------
 
 
   render () {
@@ -382,7 +412,7 @@ export default class VoiceNative extends React.Component {
                         {'\u00A0'}
                         {this.state.recording ? this.state.results[0] : null }
                         {this.state.storedNote || this.state.results[0] ? null : <Text style={{color: 'grey'}}> {'\n'} Press "Start Dictation" below and speak your note. {'\n'}{'\n'}Special commands:{'\n'}"Period"{'\n'}"Questionmark"{'\n'}"Semicolon"{'\n'}"New Line"</Text>}
-                        {this.state.recording && !this.state.results[0] ? <Text style={{color: 'red'}}>{'\n'}{'\n'}Go ahead! I'm listening</Text> : null}
+                        {this.state.recording && !this.state.results[0] && !this.state.continuing ? <Text style={{color: 'red'}}>{'\n'}{'\n'}Go ahead! I'm listening</Text> : null}
                       </Text>
                     </ScrollView> 
                   }
@@ -418,7 +448,7 @@ export default class VoiceNative extends React.Component {
                               <Text
                                 style={[styles.button, {color: this.state.editing || this.state.recording ? 'lightgrey' : 'salmon'}]}>
                                 <FontAwesome>{Icons.trash} </FontAwesome>{'\n'}
-                                gaggi
+                                Delete
                               </Text>
                             </TouchableOpacity>
 
@@ -473,7 +503,7 @@ export default class VoiceNative extends React.Component {
                 { !this.state.subscribed ? 
                   <Animatable.View animation="slideInUp" duration={400} easing="ease-out" >
                     <Text style={{color: '#2191fb', textAlign: 'center', paddingBottom: 5}}>
-                      Remaining Test Runs: {this.state.remaining}
+                      Remaining dictations before signup: {this.state.remaining ? this.state.remaining : 5}
                     </Text> 
                   </Animatable.View>
                   :
@@ -503,12 +533,18 @@ export default class VoiceNative extends React.Component {
                 {!this.state.unlocked ? 
 
                     <Animatable.View animation="slideInUp" duration={400} easing="ease-out" >
-                      <Button
-                        style={[{backgroundColor: '#2191fb'}, styles.bottomButton]}
-                        styleDisabled={styles.bottomButtonDisabled}
-                        onPress={() => this.props.navigation.navigate('AuthScreen')}
-                        >Start Free Trial to continue</Button>
-                    </Animatable.View> : null
+                      <TouchableOpacity 
+                        style={[{backgroundColor: '#2191fb' }, styles.bottomButton]}
+                        onPress={() => this.props.navigation.navigate('AuthScreen')}>
+                        <Text
+                          style={{color: 'white', fontSize: 18, fontWeight: '600', textAlign: 'center'}}>
+                          Start 7-day free trial to continue
+                        </Text>
+                      </TouchableOpacity>
+                    </Animatable.View>
+
+                : 
+                null
                 }
               </View>
             }
