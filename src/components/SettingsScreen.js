@@ -13,7 +13,8 @@ import {  StyleSheet,
           TextInput,
           Platform,
           Keyboard,
-          Button} from 'react-native';
+          Button,
+          ScrollView} from 'react-native';
 import styles from './_styles'
 import * as Animatable from 'react-native-animatable';
 
@@ -80,10 +81,11 @@ class SettingsScreen extends React.Component {
                   </View>   
                         
                         
+                    <ScrollView>
                       
-                      <View style={{flex: 1, alignItems: 'center', padding: 10}}>
-                          <View style={{flexDirection:'row', alignItems: 'center'}}>
-                            
+                          
+                        <View style={{flex: 1, alignItems: 'center', padding: 10}}>
+                          <View style={{flexDirection:'row', alignItems: 'center'}}> 
                             <TextInput 
                               underlineColorAndroid="transparent"
                               style={styles.input}
@@ -105,13 +107,15 @@ class SettingsScreen extends React.Component {
                           </View>
                           <Text></Text>
                           <Text>Address that will auto-fill when emailing note</Text>
-                          <View style={styles.separator} />
+                        </View>
                           
+                          
+                        <View>
                           <Text></Text>
                           <View style={styles.separator} />
-                          <Text></Text>
+                        </View>
                           
-                          
+                        <View style={{flex: 1, alignItems: 'center', padding: 10}}>
                           <TouchableOpacity onPress={() => Linking.openURL('mailto:n.dunkel@gmail.com')} >
                             <Text style={[styles.outlineButton]}>
                               Send Feedback
@@ -119,26 +123,34 @@ class SettingsScreen extends React.Component {
                           </TouchableOpacity> 
                           <Text></Text>
                           <Text>Email the developers with feature requests, ideas, bugs to fix or feedback!</Text>
+                        </View>
 
+
+                        <View>
                           <Text></Text>
                           <View style={styles.separator} />
-                          <Text></Text>
+                          
+                        </View>
+                        
 
-                          <Text></Text>
-
-                          {this.state.subscribed ?
+                        
+                        {this.state.subscribed ?
+                          <View style={{flex: 1, alignItems: 'center', padding: 10}}>
                             <Text style={{fontSize: 15, textAlign: 'center', color: 'grey'}}>
                               You are currently enrolled in the $3.99/mo plan. Cancel your subscription any time in the iOS "Settings" App under "iTunes & App Store" > "Apple ID" > "View Apple ID" > "Subscriptions".
                             </Text>
-                            :
-                            null
-                          }
-                          <Text></Text>
-                          <Text></Text>
+                            <View>
+                              <Text></Text>
+                              <View style={styles.separator} />
+                            </View>
+                          </View>
+
+                          :
+                          null
+                        }
 
 
-
-
+                        <View style={{flex: 1, alignItems: 'center', padding: 10}}>
                           <TouchableOpacity 
                               style={[styles.materialButtonLong]} 
                               onPress={() => Platform.OS === 'ios' ? Linking.openURL('sms: &body=https://itunes.apple.com/app/id1384252497') : Linking.openURL('sms:?body=https://play.google.com/store/apps/details?id=com.pokedoc.iamoff')} >
@@ -146,8 +158,11 @@ class SettingsScreen extends React.Component {
                               Invite Friends
                             </Text>
                           </TouchableOpacity> 
+                        </View>
 
-                      </View>  
+
+                       
+                    </ScrollView>
                             
                 </Animatable.View> 
                 
@@ -162,20 +177,6 @@ class SettingsScreen extends React.Component {
 
     }
 
-const mapStateToProps = (state) => {
-    return {
-        items: state.items,
-        user: state.user,
-        token: state.token,
-        loggedIn: state.loggedIn,
-        firstrun: state.firstrun
-    };
-};
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        alterUsergroup: (phone, usergroup) => dispatch(alterUsergroup(phone, usergroup))
-    };
-};
 
 export default SettingsScreen;

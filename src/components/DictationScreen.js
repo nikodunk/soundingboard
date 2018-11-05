@@ -85,6 +85,7 @@ export default class VoiceNative extends React.Component {
   componentDidMount() {
       // AsyncStorage.removeItem('remainingtrials')
       Mixpanel.track("DictationScreen Loaded");
+
       
       // check if subscribed and save for settings screen
       this._getProducts()
@@ -92,6 +93,7 @@ export default class VoiceNative extends React.Component {
       // get email
       AsyncStorage.getItem('email').then((res) => {
         this.setState({email: res})
+        {this.state.email ? Mixpanel.identify(this.state.email) : null }
       })
   }
 
@@ -517,6 +519,7 @@ export default class VoiceNative extends React.Component {
                           style={[{backgroundColor: this.state.recording ? 'red' : '#2191fb' },
                                   this.state.stopping || !this.state.unlocked ? styles.bottomButtonDisabled : styles.bottomButton]}
                           onPress={this._toggleRecognizing.bind(this)}
+                          onLongPress={this._toggleRecognizing.bind(this)}
                           disabled={this.state.stopping || !this.state.unlocked }>
                           <Text
                             style={{color: 'white', fontSize: 18, fontWeight: '600', textAlign: 'center'}}>
