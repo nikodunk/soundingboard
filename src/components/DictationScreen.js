@@ -66,16 +66,9 @@ export default class VoiceNative extends React.Component {
         loading: true,
         subscribed: false,
         remaining: 5, //for view purposes only!!!
+        fontSize: 15,
+        language: 'en-US'
       };
-
-      AsyncStorage.getItem('notes').then((notes) => {
-                if(notes === ''){
-                    this.setState({ 'storedNote': '' })
-                  }
-                else{
-                    this.setState({ 'storedNote': JSON.parse(notes) }) 
-                  }
-            })
 
       Voice.onSpeechStart = this.onSpeechStart.bind(this);
       Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
@@ -85,17 +78,38 @@ export default class VoiceNative extends React.Component {
 
   componentDidMount() {
       // AsyncStorage.removeItem('remainingtrials')
+      // AsyncStorage.removeItem('email')
+
       Mixpanel.track("DictationScreen Loaded");
 
-      
       // check if subscribed and save for settings screen
       this._getProducts()
+
+      // get notes
+      AsyncStorage.getItem('notes').then((notes) => {
+                if(notes === ''){
+                    this.setState({ 'storedNote': '' })
+                  }
+                else{
+                    this.setState({ 'storedNote': JSON.parse(notes) }) 
+                  }
+            })
 
       // get email
       AsyncStorage.getItem('email').then((res) => {
         this.setState({email: res})
         {this.state.email ? Mixpanel.identify(this.state.email) : null }
       })
+
+      AsyncStorage.getItem('fontSize').then((res) => {
+        this.setState({fontSize: parseInt(res)})
+      })
+
+
+      AsyncStorage.getItem('language').then((res) => {
+        this.setState({language: res})
+      })
+
   }
 
 
@@ -199,12 +213,14 @@ export default class VoiceNative extends React.Component {
         // Vibration.vibrate()
 
         this._startRecognition(e);
+        this.setState({continuing: true})
+        
 
         setInterval(() => { 
             if (this.state.recording === true){
 
-                // this._stopRecognition(e)                
-                this._continueRecognition(e); 
+                this._stopRecognition(e)
+                // console.log('continuing')
                 
               }
          }, 55000);
@@ -222,8 +238,9 @@ export default class VoiceNative extends React.Component {
 
   // START RECOGNITION
   async _startRecognition(e) {
+      console.log('starting')
       Mixpanel.track("Recognition Started");
-      this.state.previousNote !== null ? this.setState({previousNote: this.state.storedNote}) : this.setState({previousNote: this.state.storedNote})
+      this.setState({previousNote: this.state.storedNote})
 
       this.setState({
         recognized: '',
@@ -232,7 +249,7 @@ export default class VoiceNative extends React.Component {
         recording: true
       });
       try {
-        await Voice.start('en-US');
+        await Voice.start(this.state.language);
       } catch (e) {
         console.error(e);
       }
@@ -240,13 +257,7 @@ export default class VoiceNative extends React.Component {
 
 
 
-  async _continueRecognition(e){
-      
-      // blip.play();
-      this._stopRecognition(e)
-      this.setState({continuing: true})
 
-  }
 
 
 
@@ -254,57 +265,75 @@ export default class VoiceNative extends React.Component {
   async _stopRecognition(e) {
       try {
         await Voice.stop();
+        if(this.state.continuing && this.state.results[0] === undefined){
+          // CASE UNDEFINED BUT CONTINUING
+          
+          Mixpanel.track("Recognition Continuing as undefined");
+          console.log('onspeechcontinue as undefined')
+          setTimeout(() => { Voice.start(this.state.language) }, 500);
+
+          // if this.state.continuing and DEFINED: see onSpeechEnd does the rest
+          }
       } catch (e) {
         console.error(e);
       }
+
       
 
       // ONLY IF NOT CONTINUING AKA REALLY STOPPING
       if(!this.state.continuing){
+            console.log("stopping. not continuing.")
+            this.setState({stopping: true})
 
-        this.setState({stopping: true})
-
-        // CASE UNDEFINED
-        if (this.state.results[0] === undefined){
-            this.setState({noInput: true, recording: false, stopping: false})
-            setTimeout(() => { 
-                this.setState({noInput: false})
-              }, 5000);
-          }
-        
-        // REMOVE REMAINING TRIALS
-        if(!this.state.subscribed){
-          AsyncStorage.getItem('remainingtrials').then((res) => {
-            var newRemainingTrials = res - 1
-            AsyncStorage.setItem('remainingtrials', newRemainingTrials.toString() )
-            this._checkTrial()
-          })
-        }
+            // CASE UNDEFINED
+            if (this.state.results[0] === undefined){
+                this.setState({noInput: true, recording: false, stopping: false})
+                setTimeout(() => { 
+                    this.setState({noInput: false})
+                  }, 10000);
+              }
+            
+            // REMOVE REMAINING TRIALS
+            if(!this.state.subscribed){
+              AsyncStorage.getItem('remainingtrials').then((res) => {
+                var newRemainingTrials = res - 1
+                AsyncStorage.setItem('remainingtrials', newRemainingTrials.toString() )
+                this._checkTrial()
+              })
+            }
       }
       
     }
 
 
 
+
+
   // ON FINAL RESULTS ARE IN – EVENT CALLED ONLY IF THERE ARE RESULTS AND WHEN FINAL RESULTS ARE IN BACK FROM SERVER – CAN BE DELAYED AFTER STOP, DEPENDING ON CONNECTION SPEED
   onSpeechEnd(e) {
-      Mixpanel.track("Recognition Successfully Ended");
-      var newNote
-      // CONCATENATE TO OLD NOTE IF THERE WAS AN EXISTING NOTE, OTHERWISE NEW NOTE
-      this.state.storedNote ? newNote = this.state.storedNote + ' ' + this.state.results[0] : newNote = this.state.results[0] 
-
-      // SAVE TO STATE AND TO DISK
-      AsyncStorage.setItem('notes', JSON.stringify(newNote))
-      this.setState({ 'storedNote': newNote });
       
 
-      this.setState({
-        results: [],
-        recording: false,
-        stopping: false
-      });
+          Mixpanel.track("Recognition Successfully Ended");
+          var newNote
+          // CONCATENATE TO OLD NOTE IF THERE WAS AN EXISTING NOTE, OTHERWISE NEW NOTE
+          this.state.storedNote ? newNote = this.state.storedNote + ' ' + this.state.results[0] : newNote = this.state.results[0] 
 
-      if(this.state.continuing){this._startRecognition(e)}
+          // SAVE TO STATE AND TO DISK
+          AsyncStorage.setItem('notes', JSON.stringify(newNote))
+          this.setState({ 'storedNote': newNote });
+          
+
+          this.setState({
+            results: [],
+            recording: false,
+            stopping: false
+          });
+          
+
+      if(!this.state.continuing){ console.log('onspeechend')}
+
+      
+      if(this.state.continuing){ this._startRecognition(e); console.log('onspeechcontinue') }
 
     }
 
@@ -410,7 +439,7 @@ export default class VoiceNative extends React.Component {
                     />
                     :
                     <ScrollView>
-                      <Text style={style={textAlign: 'center', padding: 8}}>
+                      <Text style={{textAlign: 'center', padding: 8, fontSize: this.state.fontSize}}>
                         {this.state.storedNote}
                         {'\u00A0'}
                         {this.state.recording ? this.state.results[0] : null }

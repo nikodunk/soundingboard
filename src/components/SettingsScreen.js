@@ -14,7 +14,8 @@ import {  StyleSheet,
           Platform,
           Keyboard,
           Button,
-          ScrollView} from 'react-native';
+          ScrollView,
+          Picker} from 'react-native';
 import styles from './_styles'
 import * as Animatable from 'react-native-animatable';
 
@@ -33,7 +34,9 @@ class SettingsScreen extends React.Component {
         this.state = {
           usergroup: '',
           email: '',
-          subscribed: false
+          subscribed: false,
+          language: null,
+          fontSize: null,
         };
       }
       
@@ -46,6 +49,14 @@ class SettingsScreen extends React.Component {
             this.setState({subscribed: res})
           })
 
+          AsyncStorage.getItem('fontSize').then((res) => {
+            this.setState({fontSize: res.toString()})
+          })
+
+          AsyncStorage.getItem('language').then((res) => {
+            this.setState({language: res})
+          })
+
           Mixpanel.track("Settings Loaded");
       }
 
@@ -56,6 +67,17 @@ class SettingsScreen extends React.Component {
           if(this.state.email){
             AsyncStorage.setItem('email', this.state.email)
           }
+      }
+
+      _onChangeFontSize(newFontSize){
+        AsyncStorage.setItem('fontSize', newFontSize.toString())
+        this.setState({fontSize: newFontSize})
+      }
+
+
+      _onChangeLanguage(newLanguage){
+        AsyncStorage.setItem('language', newLanguage)
+        this.setState({language: newLanguage})
       }
 
 
@@ -160,6 +182,66 @@ class SettingsScreen extends React.Component {
                           </TouchableOpacity> 
                         </View>
 
+                        <View>
+                          <Text></Text>
+                          <View style={styles.separator} />
+                        </View>
+
+                        
+                        <View style={{flex: 1, alignItems: 'center', padding: 10}}>
+                          <View style={{flexDirection:'row', alignItems: 'center'}}> 
+
+                            <Text>Font size of dictated text </Text>
+                            <Picker
+                              selectedValue={this.state.fontSize}
+                              itemStyle={{height: 44}}
+                              style={{ height: 50, width: 100, borderColor: 'lightgrey', borderWidth: 1, borderRadius: 10, margin: 10 }}
+                              onValueChange={(itemValue, itemIndex) => this._onChangeFontSize(itemValue)}>
+                              <Picker.Item label="10" value="10" />
+                              <Picker.Item label="12" value="12" />
+                              <Picker.Item label="14" value="14" />
+                              <Picker.Item label="16" value="16" />
+                              <Picker.Item label="18" value="18" />
+                              <Picker.Item label="20" value="20" />
+                              <Picker.Item label="22" value="22" />
+                              <Picker.Item label="24" value="24" />
+                              <Picker.Item label="26" value="26" />
+                              <Picker.Item label="28" value="28" />
+                              <Picker.Item label="30" value="30" />
+                            </Picker>
+
+                          </View>
+                        </View>
+
+
+                        <View>
+                          <Text></Text>
+                          <View style={styles.separator} />
+                        </View>
+
+
+                        <View style={{flex: 1, alignItems: 'center', padding: 10}}>
+                          <View style={{flexDirection:'column', alignItems: 'center'}}> 
+
+                            <Text>Language for recognition</Text>
+                            <Picker
+                              selectedValue={this.state.language}
+                              itemStyle={{height: 50}}
+                              style={{ height: 56, width: 200, borderColor: 'lightgrey', borderWidth: 1, borderRadius: 10, margin: 10 }}
+                              onValueChange={(itemValue, itemIndex) => this._onChangeLanguage(itemValue)}>
+                              <Picker.Item label="U.S. English" value="en" />
+                              <Picker.Item label="UK English" value="en-GB" />
+                              <Picker.Item label="English (Indian)" value="en-IN" />
+                              <Picker.Item label="Chinese (Simplified)" value="zh-Hans" />
+                              <Picker.Item label="Chinese (Traditional)" value="zh-Hant" />
+                              <Picker.Item label="Chinese (Hong Kong)" value="zh-HK" />
+                              <Picker.Item label="German" value="de-DE" />
+                              <Picker.Item label="Spanish" value="es" />
+                              <Picker.Item label="Spanish (Mexico)" value="es-MX" />
+                            </Picker>
+
+                          </View>
+                        </View>
 
                        
                     </ScrollView>

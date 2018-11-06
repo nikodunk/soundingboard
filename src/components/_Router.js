@@ -6,33 +6,22 @@ import DictationScreen from './DictationScreen'
 import SettingsScreen from './SettingsScreen'
 import SideMenu from './SideMenu';
 import AuthScreen from './AuthScreen';
+import FirstrunScreen from './FirstrunScreen';
 
 import styles from './_styles'
 
-import * as RNIap from 'react-native-iap';
-
-const itemSkus = Platform.select({
-  ios: [
-    'com.bigset.monthly'
-  ],
-  // android: [
-  //   'com.example.coins100'
-  // ]
-});
 
 
 
 SignedInRouter = createSwitchNavigator({
 		DictationScreen: { screen: DictationScreen },
-    Settings: { screen: SettingsScreen }
-	},
-	{ 
-    contentComponent: ({ navigation }) => (<SideMenu navigation={navigation} /> ),
-  }
+    Settings: { screen: SettingsScreen },
+    AuthScreen: {screen: AuthScreen}
+	}
 )
 
 const SignedOutRouter = createStackNavigator({
-  AuthScreen: { screen: AuthScreen, navigationOptions: {title: 'Welcome', header: null} },
+  AuthScreen: { screen: FirstrunScreen, navigationOptions: {title: 'Welcome', header: null} },
   // LoginScreen: { screen: LoginScreen, navigationOptions:{ title: 'Sign Up', header: null} },
   // RegisterScreen: { screen: RegisterScreen, navigationOptions:{ title: 'Sign Up', header: null} }
   });
@@ -51,7 +40,7 @@ class AuthLoadingScreen extends Component {
 
 
   componentWillUnmount() {
-    RNIap.endConnection();
+    
   }
 
 
@@ -61,8 +50,8 @@ class AuthLoadingScreen extends Component {
 
     // This will switch to the App screen or Auth screen and this loading
     // screen will be unmounted and thrown away.
-    // this.props.navigation.navigate(userToken && ? 'SignedInRouter' : 'Auth');
-    this.props.navigation.navigate('SignedInRouter');
+    this.props.navigation.navigate(userToken ? 'SignedInRouter' : 'Auth');
+    // this.props.navigation.navigate('SignedInRouter');
     // this._getProducts()
   };
 

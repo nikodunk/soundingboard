@@ -29,17 +29,16 @@ class AuthScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
-        loading: false,
-        email: ''
+        loading: false
        };
   }
 
   componentDidMount() {
       Mixpanel.track("Authscreen Loaded");
-      // AsyncStorage.getItem('email').then((res) => {
-      //   email = res
-      //   this.setState({email: email})
-      // })
+  }
+
+  componentWillUnmount() {
+    RNIap.endConnection();
   }
 
 
@@ -47,19 +46,7 @@ class AuthScreen extends React.Component {
   _onPress = async (email) => {
     Mixpanel.track("Subscribe Pressed");
     this.setState({loading: true})
-    console.log(email)
-    fetch('https://healthnotes.herokuapp.com/email/', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email
-        }),
-    })
-    .then(() => AsyncStorage.setItem('email', email ))
-    .then(() => { this._buyProduct() })
+    this._buyProduct()
   };
 
 
@@ -68,8 +55,9 @@ class AuthScreen extends React.Component {
       RNIap.buyProduct('com.bigset.monthly').then(purchase => {
         
         AsyncStorage.setItem('receipt', purchase.transactionReceipt )
-        // console.log('SUCCESS!! ', purchase)
-        this.props.navigation.navigate('SignedInRouter')
+        console.log('SUCCESS!! ', purchase)
+        
+
 
       }).catch(err => {
         
@@ -79,11 +67,12 @@ class AuthScreen extends React.Component {
         
         alert(err.message);
         
-      })
+      }).then(() => this._getPurchases())
   }
 
 
   _getPurchases = async() => {
+    this.setState({loading: true})
     try {
       const purchases = await RNIap.getAvailablePurchases();
       console.log(purchases)
@@ -92,7 +81,7 @@ class AuthScreen extends React.Component {
           if (purchase.productId == 'com.bigset.monthly') {
             AsyncStorage.setItem('receipt', purchase.transactionReceipt )
             // console.log('SUCCESS!! ', purchase)
-            this.props.navigation.navigate('SignedInRouter')
+            this.props.navigation.navigate('DictationScreen')
           } 
           else {
             return
@@ -159,18 +148,9 @@ class AuthScreen extends React.Component {
               </ScrollView>
 
               <View style={styles.border}>
-                <TextInput 
-                    underlineColorAndroid="transparent"
-                    style={styles.input}
-                    placeholder={'Enter email'}
-                    autoFocus={false}
-                    autoCapitalize = 'none'
-                    keyboardType={'email-address'}
-                    onChangeText={ (text) => {  this.setState({email: text}) }}
-                />
                 <Button 
                   style={[{backgroundColor: '#2191fb' }, styles.bottomButton]}
-                  onPress={() => this._onPress(this.state.email)} >
+                  onPress={() => this._onPress()} >
                   Start free trial, then $3.99/month
                 </Button>
               </View>
