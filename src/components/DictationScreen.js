@@ -33,6 +33,7 @@ var blip = new Sound('blip.m4a', Sound.MAIN_BUNDLE, (error) => {
   }
 });
 
+
 var Mixpanel = require('react-native-mixpanel');
 Mixpanel = Mixpanel.default
 Mixpanel.sharedInstanceWithToken('c72aabf24fb03673362eae05a8e5150a');
@@ -439,7 +440,7 @@ export default class VoiceNative extends React.Component {
                     />
                     :
                     <ScrollView>
-                      <Text style={{textAlign: 'center', padding: 8, fontSize: this.state.fontSize}}>
+                      <Text style={{textAlign: 'left', padding: 8, fontSize: this.state.fontSize}}>
                         {this.state.storedNote}
                         {'\u00A0'}
                         {this.state.recording ? this.state.results[0] : null }
@@ -551,11 +552,17 @@ export default class VoiceNative extends React.Component {
                           onPress={this._toggleRecognizing.bind(this)}
                           onLongPress={this._toggleRecognizing.bind(this)}
                           disabled={this.state.stopping || !this.state.unlocked }>
-                          <Text
-                            style={{color: 'white', fontSize: 18, fontWeight: '600', textAlign: 'center'}}>
-                            <FontAwesome>{Icons.microphone} </FontAwesome>
-                            {this.state.recording === false ? "Start Dictation" : "Recording... Touch to Stop."}
-                          </Text>
+                          
+                            
+                            <View
+                              style={{justifyContent: 'center', flexDirection: 'row'}}>
+                              {this.state.recording === false ? null : <ActivityIndicator color={'white'} />}
+                              <Text style={{color: 'white', fontSize: 18, fontWeight: '600', }}>
+                                  {this.state.recording === false ? <FontAwesome>{Icons.microphone} </FontAwesome> : null}
+                                  {this.state.recording === false ? "Start Dictation" : " Recording... Touch to Stop."}
+                              </Text>
+                            </View>
+                          
                         </TouchableOpacity>
 
                       </Animatable.View>

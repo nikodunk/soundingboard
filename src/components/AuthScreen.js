@@ -43,7 +43,7 @@ class AuthScreen extends React.Component {
 
 
 
-  _onPress = async (email) => {
+  _onPress = async () => {
     Mixpanel.track("Subscribe Pressed");
     this.setState({loading: true})
     this._buyProduct()
@@ -56,8 +56,8 @@ class AuthScreen extends React.Component {
         
         AsyncStorage.setItem('receipt', purchase.transactionReceipt )
         console.log('SUCCESS!! ', purchase)
-        
 
+        this.props.navigation.navigate('DictationScreen')
 
       }).catch(err => {
         
@@ -67,7 +67,7 @@ class AuthScreen extends React.Component {
         
         alert(err.message);
         
-      }).then(() => this._getPurchases())
+      })
   }
 
 
@@ -112,7 +112,7 @@ class AuthScreen extends React.Component {
       
           <Animatable.View animation="fadeIn" duration={1000}>
             <Text style={{fontSize: 24, color: '#2191fb', textAlign: 'center'}}>
-                Save an hour of note-typing every day.
+                Save hours of typing every day.
             </Text>
 
           </Animatable.View>

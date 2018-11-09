@@ -238,6 +238,8 @@ class SettingsScreen extends React.Component {
                               <Picker.Item label="German" value="de-DE" />
                               <Picker.Item label="Spanish" value="es" />
                               <Picker.Item label="Spanish (Mexico)" value="es-MX" />
+                              <Picker.Item label="French (France)" value="fr-FR" />
+                              <Picker.Item label="Arabic" value="ar_SA" />
                             </Picker>
 
                           </View>
